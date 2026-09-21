@@ -35,7 +35,14 @@ function formatValue(field, value) {
 }
 
 function parseValue(field, raw) {
-  if (field.type === 'boolean') return Boolean(raw);
+  if (field.type === 'boolean') {
+    if (typeof raw === 'boolean') return raw;
+    const normalized = String(raw).trim().toLowerCase();
+    if (normalized === '') return undefined;
+    if (normalized === 'true') return true;
+    if (normalized === 'false') return false;
+    throw new DataValidationError(`Enter true or false for ${field.name}.`);
+  }
   if (field.type === 'number') {
     if (raw === '') return undefined;
     const value = Number(raw);
@@ -127,10 +134,47 @@ export function createSpreadsheet(document, controller) {
       save.textContent = saving ? 'Saving…' : dirty ? 'Save changes' : 'Saved';
     }
     if (add) add.disabled = saving || !state?.collection;
-    if (column) column.disabled = saving || !state?.collection;
+    if (column) column.disabled = saving || !state?.collection || schemaFor(state).length > 0;
     if (refresh) refresh.disabled = saving || dirty || !state?.collection || state.records.status === 'loading';
     $('sheet-state').textContent = lastError || (saving ? 'Saving changes…' : dirty ? 'Unsaved changes' : 'All changes saved');
     $('sheet-state').className = lastError ? 'sheet-state is-error' : dirty ? 'sheet-state is-dirty' : 'sheet-state';
+  }
+
+  function pasteMatrix(rowIndex, columnIndex, text) {
+    const matrix = text.split(/\\r?\\n/).map((line) => line.split('\\t'));
+    if (matrix.length === 1 && matrix[0].length === 1) return false;
+    while (rows.length < rowIndex + matrix.length) {
+      const blank = {};
+      for (const field of schemaFor(state)) if (Object.hasOwn(field, 'default')) blank[field.name] = clone(field.default);
+      rows.push({
+        key: `new:${crypto.randomUUID()}`,
+        id: null,
+        version: null,
+        original: {},
+        data: blank,
+        isNew: true,
+        deleted: false,
+        status: 'dirty',
+        error: '',
+      });
+    }
+    for (let r = 0; r < matrix.length; r += 1) {
+      for (let cIndex = 0; cIndex < matrix[r].length; cIndex += 1) {
+        const column = columns[columnIndex + cIndex];
+        const row = rows[rowIndex + r];
+        if (!column || !row) continue;
+        const field = fieldType({ fields: columns }, column.name, row.data[column.name]);
+        try {
+          setCell(row.key, column.name, parseValue(field, matrix[r][cIndex]));
+        } catch (error) {
+          row.error = error.message;
+          lastError = error.message;
+        }
+      }
+    }
+    render();
+    focusRequest = { row: Math.min(rows.length - 1, rowIndex + matrix.length - 1), column: Math.min(columns.length - 1, columnIndex + matrix[0].length - 1) };
+    return true;
   }
 
   function makeCell(row, column, rowIndex) {
@@ -190,6 +234,12 @@ export function createSpreadsheet(document, controller) {
         lastError = error.message;
         updateToolbar();
       }
+    });
+    input.addEventListener('paste', (event) => {
+      const text = event.clipboardData?.getData('text/plain') || '';
+      if (!text.includes('\\t') && !text.includes('\\n')) return;
+      const handled = pasteMatrix(rowIndex, columns.indexOf(column), text);
+      if (handled) event.preventDefault();
     });
     input.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
@@ -326,6 +376,11 @@ export function createSpreadsheet(document, controller) {
 
   function addColumn() {
     if (!state?.collection || saving) return;
+    if (schemaFor(state).length > 0) {
+      lastError = 'This collection has an authoritative schema. Add fields from the Schema view before using them here.';
+      updateToolbar();
+      return;
+    }
     const input = $('sheet-column-input');
     const name = input?.value.trim();
     if (!/^[a-z][a-z0-9_]*$/.test(name || '')) {
