@@ -2,6 +2,7 @@ import { AiInputError } from '../ai/tasks.js';
 import { createSchemaForm } from './forms.js';
 import { normalizeSchema, parseDocument, canUseForm } from './schema.js';
 import { displayError } from './errors.js';
+import { createSpreadsheet } from './sheet.js';
 
 export function mountDataView(document, controller) {
   const $ = id => document.getElementById(id);
@@ -16,6 +17,7 @@ export function mountDataView(document, controller) {
     node.addEventListener('click', action); return node;
   };
   let state, editorSignature = null, editorMode = 'json', form = null, schemaSource = null, readyRevision = null;
+  const spreadsheet = createSpreadsheet(document, controller);
   let focusBeforeEditor = null, focusBeforeEditorLabel = null;
   const showTab = name => {
     $('records-panel').hidden = name !== 'records'; $('schema-panel').hidden = name !== 'schema';
@@ -26,10 +28,24 @@ export function mountDataView(document, controller) {
   $('schema-tab').onclick = () => showTab('schema');
   $('reload-collections').onclick = () => controller.loadCollections();
   $('open-collection-form').onsubmit = event => {
-    event.preventDefault(); showTab('records'); controller.openCollection($('collection-input').value.trim());
+    event.preventDefault();
+    if (spreadsheet.isDirty()) {
+      $('records-state').textContent = 'Save spreadsheet changes before opening another collection.';
+      return;
+    }
+    showTab('records'); controller.openCollection($('collection-input').value.trim());
   };
-  $('refresh-records').onclick = () => controller.refresh();
-  $('create-record').onclick = () => { focusBeforeEditorLabel = null; focusBeforeEditor = $('create-record'); controller.openEditor('create'); };
+  $('refresh-records').onclick = () => {
+    if (spreadsheet.isDirty()) {
+      $('records-state').textContent = 'Save spreadsheet changes before refreshing.';
+      return;
+    }
+    controller.refresh();
+  };
+  $('create-record').onclick = () => spreadsheet.addRow();
+  $('sheet-add-row').onclick = () => spreadsheet.addRow();
+  $('sheet-add-column').onclick = () => spreadsheet.addColumn();
+  $('sheet-save').onclick = () => spreadsheet.save();
 $('publish-json').onclick = () => {
     if (!state?.collection) return;
     renderPublicJsonDialog(state);
@@ -59,6 +75,10 @@ $('publish-json').onclick = () => {
   };
   $('filter-form').onsubmit = async event => {
     event.preventDefault(); clearAiFilters(); $('filter-error').textContent = '';
+    if (spreadsheet.isDirty()) {
+      $('filter-error').textContent = 'Save spreadsheet changes before changing filters.';
+      return;
+    }
     try {
       const field = $('filter-field').value.trim();
       const filters = Object.fromEntries(Object.entries(state.records.filters));
@@ -66,7 +86,7 @@ $('publish-json').onclick = () => {
       await controller.setQuery({ filters, limit: Number($('page-size').value) });
     } catch (error) { $('filter-error').textContent = displayError(error); }
   };
-  $('clear-filters').onclick = () => { clearAiFilters(); $('filter-field').value = ''; $('filter-value').value = ''; controller.setQuery({ filters: {} }); };
+  $('clear-filters').onclick = () => { if (spreadsheet.isDirty()) { $('filter-error').textContent = 'Save spreadsheet changes before changing filters.'; return; } clearAiFilters(); $('filter-field').value = ''; $('filter-value').value = ''; controller.setQuery({ filters: {} }); };
   $('schema-form').onsubmit = event => {
     event.preventDefault(); $('schema-error').textContent = '';
     try {
@@ -104,7 +124,7 @@ $('publish-json').onclick = () => {
     const discovery = $('collection-limit').closest('.discovery-note'); if (discovery) discovery.hidden = s.collections.complete;
     $('collection-list').replaceChildren();
     for (const item of s.collections.items) {
-      const node = button(item.name, () => { showTab('records'); controller.openCollection(item.name); }, Boolean(s.editor));
+      const node = button(item.name, () => { if (spreadsheet.isDirty()) return; showTab('records'); controller.openCollection(item.name); }, Boolean(s.editor) || spreadsheet.isDirty());
       node.className = 'collection-link'; node.setAttribute('aria-current', item.name === s.collection ? 'page' : 'false');
       const li = el('li'); li.append(node); $('collection-list').append(li);
     }
@@ -112,46 +132,22 @@ $('publish-json').onclick = () => {
     $('open-collection').disabled = !s.connected || Boolean(s.editor);
   }
   function renderRecords(s) {
-    const busy = Boolean(s.editor), loaded = ['ready', 'empty'].includes(s.records.status);
+    const dirty = spreadsheet.isDirty();
     $('collection-title').textContent = s.collection ?? 'Choose a collection';
     renderPublicJsonDialog(s);
-    $('records-state').textContent = ({ idle: 'Open a collection to browse its records.', loading: 'Loading records…', empty: 'No records match this page and filter.', error: s.records.error, ready: `${s.records.items.length} records on this page · ordered by ID` })[s.records.status];
+    spreadsheet.render(s);
+    $('records-state').textContent = ({ idle: 'Open a collection to browse its records.', loading: 'Loading rows…', empty: 'No rows yet — add one to start building this collection.', error: s.records.error, ready: `${s.records.items.length} rows loaded · edit cells directly` })[s.records.status];
     $('records-state').setAttribute('role', s.records.status === 'error' ? 'alert' : 'status');
-    $('record-table').setAttribute('aria-busy', String(s.records.status === 'loading'));
-    $('record-table').replaceChildren();
-    if (s.records.items.length) {
-      const fields = [...new Set(s.records.items.flatMap(record => Object.keys(record.data)))].filter(key => key !== 'id');
-      const header = el('thead'), row = el('tr');
-      for (const label of ['Record ID', 'Version', ...fields, 'Actions']) { const heading = el('th', label); heading.scope = 'col'; row.append(heading); }
-      header.append(row); $('record-table').append(header);
-      const body = el('tbody');
-      for (const record of s.records.items) {
-        const tr = el('tr'), identity = el('td', undefined, 'record-id');
-        const recordLink = button(record.id, () => { focusBeforeEditorLabel = `Open JSON ${record.id}`; controller.openEditor('raw', record.id); }, busy || s.schema.status === 'loading');
-        recordLink.className = 'record-link'; recordLink.setAttribute('aria-label', `Open JSON ${record.id}`); identity.append(recordLink);
-        const copy = el('button', 'Copy ID'); copy.type = 'button'; copy.dataset.copyText = record.id; copy.setAttribute('aria-label', `Copy ID ${record.id}`); identity.append(copy);
-        tr.append(identity, el('td', String(record.version)));
-        for (const name of fields) {
-          const value = record.data[name];
-          const content = value === undefined ? '—' : typeof value === 'string' ? value : JSON.stringify(value);
-          const cell = el('td', content); cell.title = content; tr.append(cell);
-        }
-        const actions = el('td', undefined, 'row-actions');
-        for (const [text, mode] of [['JSON', 'raw'], ['Edit', 'edit'], ['Duplicate', 'duplicate'], ['Delete', 'delete']]) {
-          const action = button(text, () => { focusBeforeEditorLabel = `${text} ${record.id}`; controller.openEditor(mode, record.id); }, busy || s.schema.status === 'loading');
-          action.setAttribute('aria-label', `${text} ${record.id}`); actions.append(action);
-        }
-        tr.append(actions); body.append(tr);
-      }
-      $('record-table').append(body);
-    }
-    $('refresh-records').disabled = !s.collection || busy || s.records.status === 'loading';
-    $('create-record').disabled = !loaded || busy || s.schema.status === 'loading';
-    $('data-tools').disabled = !loaded || busy || s.schema.status === 'loading';
-    $('previous-page').disabled = busy || !loaded || s.records.page === 0;
-    $('next-page').disabled = busy || !loaded || !s.records.hasMore || !s.records.nextCursor;
+    $('refresh-records').disabled = !s.collection || dirty || s.records.status === 'loading';
+    $('create-record').disabled = !s.collection || dirty && false || false;
+    $('sheet-add-row').disabled = !s.collection;
+    $('sheet-add-column').disabled = !s.collection;
+    $('sheet-save').disabled = dirty === false;
+    $('data-tools').disabled = !['ready', 'empty'].includes(s.records.status) || dirty || s.schema.status === 'loading';
+    $('previous-page').disabled = dirty || s.records.status === 'loading' || s.records.page === 0;
+    $('next-page').disabled = dirty || !['ready', 'empty'].includes(s.records.status) || !s.records.hasMore || !s.records.nextCursor;
     $('page-label').textContent = `Page ${s.records.page + 1}`;
-    $('filter-fields').disabled = !s.collection || busy || s.records.status === 'loading';
+    $('filter-fields').disabled = !s.collection || dirty || s.records.status === 'loading';
     $('page-size').value = String(s.records.limit);
     $('active-filters').textContent = Object.keys(s.records.filters).length ? `Applied: ${JSON.stringify(s.records.filters)}` : 'No filters applied.';
     $('notice').textContent = s.notice;
@@ -185,7 +181,7 @@ $('publish-json').onclick = () => {
     $('public-json-revoke').hidden = !published;
     for (const id of ['public-json-publish', 'public-json-regenerate', 'public-json-revoke']) $(id).disabled = !supported || working;
     $('public-json-close').disabled = working;
-    $('publish-json').disabled = !s.connected || !s.collection || !['ready', 'empty'].includes(s.records.status) || share.status === 'unavailable';
+    $('publish-json').disabled = !s.connected || !s.collection || spreadsheet.isDirty() || !['ready', 'empty'].includes(s.records.status) || share.status === 'unavailable';
     $('publish-json-status').textContent = published ? 'Public' : share.status === 'error' ? 'Unavailable' : share.status === 'loading' ? 'Checking…' : '';
   }
 
