@@ -89,23 +89,6 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
     if (current(g, revision)) emit();
   }
 
-  async function loadShare() {
-    if (!connection || !state.collection) return;
-    const method = connection.database.getCollectionShare;
-    if (typeof method !== 'function') {
-      state.share = { ...idleShare(), status: 'unavailable' };
-      return;
-    }
-    state.share = { ...idleShare(), status: 'loading' };
-    emit();
-    try {
-      const result = await method(state.collection);
-      state.share = { ...idleShare(), ...result, status: 'ready', error: null };
-    } catch (error) {
-      state.share = { ...idleShare(), status: 'error', error: displayError(error) };
-    }
-  }
-
   async function openCollection(name) {
     if (!connection || busy()) return;
     // Validate via connector; never turn a name into a URL in the view/controller.
@@ -282,6 +265,6 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
       if (next) await loadCollections();
     },
     loadCollections, openCollection, refresh, page, setQuery, openEditor, setDraft, closeEditor, save, compareLatest, useLatest, applySchema,
-    loadShare, publishShare, revokeShare,
+    publishShare, revokeShare,
   };
 }
