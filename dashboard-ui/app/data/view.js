@@ -129,7 +129,7 @@ $('publish-json').onclick = () => {
       const li = el('li'); li.append(node); $('collection-list').append(li);
     }
     $('reload-collections').disabled = !s.connected || Boolean(s.editor) || s.collections.status === 'loading';
-    $('open-collection').disabled = !s.connected || Boolean(s.editor);
+    $('open-collection').disabled = !s.connected || Boolean(s.editor) || spreadsheet.isDirty();
   }
   function renderRecords(s) {
     const dirty = spreadsheet.isDirty();
@@ -139,10 +139,7 @@ $('publish-json').onclick = () => {
     $('records-state').textContent = ({ idle: 'Open a collection to browse its records.', loading: 'Loading rows…', empty: 'No rows yet — add one to start building this collection.', error: s.records.error, ready: `${s.records.items.length} rows loaded · edit cells directly` })[s.records.status];
     $('records-state').setAttribute('role', s.records.status === 'error' ? 'alert' : 'status');
     $('refresh-records').disabled = !s.collection || dirty || s.records.status === 'loading';
-    $('create-record').disabled = !s.collection || dirty && false || false;
-    $('sheet-add-row').disabled = !s.collection;
-    $('sheet-add-column').disabled = !s.collection;
-    $('sheet-save').disabled = dirty === false;
+    $('create-record').disabled = !s.collection;
     $('data-tools').disabled = !['ready', 'empty'].includes(s.records.status) || dirty || s.schema.status === 'loading';
     $('previous-page').disabled = dirty || s.records.status === 'loading' || s.records.page === 0;
     $('next-page').disabled = dirty || !['ready', 'empty'].includes(s.records.status) || !s.records.hasMore || !s.records.nextCursor;
