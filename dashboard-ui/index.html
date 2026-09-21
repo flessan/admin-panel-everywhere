@@ -50,7 +50,7 @@
         <ul id="collection-list"></ul>
       </aside>
       <section class="data-panel" aria-label="Data">
-        <div class="toolbar"><div><p class="eyebrow">DATA</p><h1 id="collection-title" tabindex="-1">Choose a collection</h1></div><button id="refresh-records" type="button">Refresh</button><button id="create-record" type="button" class="primary">Create record</button><button id="data-tools" type="button" disabled="">Tools for this page</button></div>
+        <div class="toolbar"><div><p class="eyebrow">DATA</p><h1 id="collection-title" tabindex="-1">Choose a collection</h1></div><button id="refresh-records" type="button">Refresh</button><button id="create-record" type="button" class="primary">Create record</button><button id="publish-json" type="button">Publish JSON</button><span id="publish-json-status" class="pill" aria-live="polite"></span><button id="data-tools" type="button" disabled="">Tools for this page</button></div>
         <p id="notice" role="status" aria-live="polite"></p>
         <div role="tablist" class="tabs" aria-label="Data views"><button id="records-tab" role="tab" aria-controls="records-panel" aria-selected="true">Records</button><button id="schema-tab" role="tab" aria-controls="schema-panel" aria-selected="false">Schema</button></div>
         <section id="records-panel" role="tabpanel" aria-labelledby="records-tab">
@@ -263,6 +263,22 @@
       <div id="conflict-panel" class="conflict" aria-live="polite"></div>
       <button id="save-record" type="submit" class="primary">Save record</button>
     </form>
+  </dialog>
+  <dialog id="public-json-dialog" aria-labelledby="public-json-title">
+    <div class="toolbar"><h2 id="public-json-title">Publish JSON</h2><button id="public-json-close" type="button">Close</button></div>
+    <p id="public-json-description" class="help"></p>
+    <p id="public-json-status" role="status" aria-live="polite"></p>
+    <p id="public-json-error" role="alert" hidden></p>
+    <section id="public-json-published" hidden>
+      <label>Public JSON URL<div class="toolbar"><input id="public-json-url" readonly autocomplete="off"><button id="public-json-copy" type="button" data-copy-target="public-json-url">Copy</button></div></label>
+      <label>Raw JSON URL<div class="toolbar"><input id="public-json-raw-url" readonly autocomplete="off"><button id="public-json-copy-raw" type="button" data-copy-target="public-json-raw-url">Copy</button></div></label>
+      <p class="help">The normal URL returns pagination metadata. Add <code>raw=1</code> for a plain JSON array of records.</p>
+    </section>
+    <div class="toolbar">
+      <button id="public-json-publish" type="button" class="primary">Publish collection</button>
+      <button id="public-json-regenerate" type="button">Regenerate link</button>
+      <button id="public-json-revoke" type="button" class="danger-outline">Revoke public link</button>
+    </div>
   </dialog>
   <dialog id="object-delete-dialog" aria-labelledby="object-delete-title"><form id="delete-object-form">
     <h2 id="object-delete-title">Delete object?</h2><p id="object-delete-target"></p><p id="object-delete-version" class="help"></p>
