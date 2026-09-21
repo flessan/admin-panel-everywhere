@@ -458,7 +458,10 @@ export function createSpreadsheet(document, controller) {
       const saved = new Map(result.saved.map((entry) => [entry.localKey, entry]));
       for (const row of rows) {
         const entry = saved.get(row.key);
-        if (!entry) continue;
+        if (!entry) {
+          if (row.status === 'saving') row.status = 'dirty';
+          continue;
+        }
         if (entry.kind === 'delete') {
           row.deleted = true;
           row.status = 'clean';
