@@ -26,7 +26,7 @@ export function createTelegraphConnection(configuration = {}, {
     load: async signal => (await routes.request('GET /openapi.json', { signal })).data });
   const database = createDatabase({ routes, assertOpen: client.assertOpen, collections, createIdempotencyKey });
   const capabilities = Object.freeze({ collectionDiscovery: 'configured', schemaDiscovery: 'configured',
-    collectionManagement: false, documentCrud: true, storage: true, bucketDiscovery: 'configured', openapi: true });
+    collectionManagement: false, documentCrud: true, publicCollectionJson: true, storage: true, bucketDiscovery: 'configured', openapi: true });
 
   return defineConnection({
     metadata: { limits: Object.freeze({ objectBytes: MAX_OBJECT_BYTES }), connector: 'telegraph', baseUrl, managementUrl: new URL('/console', baseUrl).href, project, projectAuthorization: 'credential', capabilities },
