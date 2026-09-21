@@ -210,6 +210,52 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
     editor.draft = JSON.stringify(editableData(editor.record.data), null, 2); editor.revision = ++editorRevision;
     emit();
   }
+  async function saveSheet(changes = {}) {
+    if (!connection || !state.collection) throw new DataValidationError('No collection is selected.');
+    const db = connection.database;
+    const operations = [
+      ...(changes.updates || []).map((item) => ({ kind: 'update', ...item })),
+      ...(changes.creates || []).map((item) => ({ kind: 'create', ...item })),
+      ...(changes.deletes || []).map((item) => ({ kind: 'delete', ...item })),
+    ];
+    if (!operations.length) return { saved: [], failed: [] };
+
+    const saved = [];
+    const failed = [];
+    for (const operation of operations) {
+      try {
+        let record;
+        if (operation.kind === 'update') {
+          record = await db.updateRecord(state.collection, operation.id, operation.data, {
+            expectedVersion: operation.version,
+          });
+        } else if (operation.kind === 'create') {
+          record = await db.createRecord(state.collection, operation.data, {
+            idempotencyKey: operation.idempotencyKey,
+          });
+        } else {
+          await db.deleteRecord(state.collection, operation.id, {
+            expectedVersion: operation.version,
+          });
+          record = { id: operation.id, version: operation.version + 1, data: {} };
+        }
+        saved.push({ localKey: operation.localKey, kind: operation.kind, record });
+      } catch (error) {
+        failed.push({ localKey: operation.localKey, kind: operation.kind, error });
+        // A project-level mutation limit is a shared backend condition. Do not
+        // immediately burn more requests once the service says to stop.
+        if (error?.status === 429 || error?.code === 'rate_limited') break;
+      }
+    }
+    if (failed.length) {
+      state.notice = `${saved.length} change(s) saved; ${failed.length} change(s) need attention.`;
+    } else {
+      state.notice = `${saved.length} change(s) saved.`;
+    }
+    emit();
+    return { saved, failed };
+  }
+
   async function publishShare({ regenerate = false } = {}) {
     if (!connection || !state.collection || state.share.status === 'loading' || state.share.status === 'publishing') return state.share;
     const method = connection.database.publishCollectionJson;
@@ -265,6 +311,6 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
       if (next) await loadCollections();
     },
     loadCollections, openCollection, refresh, page, setQuery, openEditor, setDraft, closeEditor, save, compareLatest, useLatest, applySchema,
-    publishShare, revokeShare,
+    publishShare, revokeShare, saveSheet,
   };
 }
