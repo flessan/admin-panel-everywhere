@@ -176,6 +176,8 @@ $('publish-json').onclick = () => {
     $('public-json-published').hidden = !published;
     $('public-json-url').value = published ? share.url : '';
     $('public-json-raw-url').value = published ? share.rawUrl : '';
+    $('public-json-copy').dataset.copyText = published ? share.url : '';
+    $('public-json-copy-raw').dataset.copyText = published ? share.rawUrl : '';
     $('public-json-copy').disabled = !published || working;
     $('public-json-copy-raw').disabled = !published || working;
     $('public-json-publish').hidden = published;
