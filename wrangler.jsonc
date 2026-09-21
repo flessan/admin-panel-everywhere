@@ -1,0 +1,8 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "admin-panel-everywhere",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-09-18"
+  // Static Pages only: no main Worker, nodejs_compat, Functions, vars, secrets,
+  // databases, KV, Durable Objects, filesystem or service bindings.
+}

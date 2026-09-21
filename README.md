@@ -1,81 +1,130 @@
-# json-server Admin Dashboard
+# Admin Panel Everywhere
 
-![json-server Admin Dashboard](https://github.com/razaahmad333/json-server-admin-dashboard/assets/50910798/2addba9b-69a6-41ee-808a-083ce0d9912a)
+A static universal admin client with a first-class **Telegraph Cloud document database, object storage and API tooling** integration. Run `npm run build` and deploy **`dist/` to Cloudflare Pages**—no production Node server, database, or startup process is required.
 
-**json-server Admin Dashboard** is a simple and intuitive admin dashboard designed to work seamlessly with [json-server](https://github.com/typicode/json-server) and [lowdb](https://github.com/typicode/lowdb). This project empowers you to effortlessly manage and visualize your json-server or lowdb data, making it easier than ever to interact with your API data.
+## Developer workspace
 
-## Getting Started
+A responsive navigation shell brings **Overview, Data, Files, API, Tools,
+Connections and Settings** together. Use **Ctrl/⌘ K** for quick navigation;
+AI assist remains under Tools. Tables include copyable IDs, full JSON inspection,
+compact/comfortable density and optional wrapping. Light/dark/system appearance
+and all display preferences stay in the current tab only.
 
-Follow these steps to set up and start using the json-server Admin Dashboard:
+Overview reports actual session context—not demo metrics. All existing connector,
+validation, concurrency and execution-confirmation boundaries are preserved.
+See [workspace UI](docs/workspace-ui.md) for navigation and keyboard behavior.
 
-1. **Clone the Repository**:
+## Data workspace
 
-   ```bash
-   git clone https://github.com/razaahmad333/json-server-admin-dashboard
-   ```
+- Collections with loading/error/empty states and explicit catalog provenance.
+- Record table, cursor pagination, indexed equality filters, and refresh.
+- Create, edit, delete, duplicate, and raw JSON inspection.
+- Expected-version writes and explicit conflict comparison/review.
+- Forms for text, number, boolean, datetime, json, file references, and select fields.
+- Schema-less JSON editing without lossy type conversion.
 
-2. **Install Node.js**:
+**Discovery limitation:** the current Telegraph developer API does not enumerate collections or expose collection schemas. Discover names/schema in the supported Telegraph console, then open an exact name or supply descriptors. No names or control-plane endpoints are guessed. See [database integration](docs/database-integration.md).
 
-   Ensure you have Node.js installed on your system. You can check if it's installed by running:
+## Files workspace
 
-   ```bash
-   node -v
-   ```
+- Known/configured buckets, prefix navigation, prefix-only search and cursor pagination.
+- Raw-byte uploads (up to 20 MiB), authenticated downloads/ranges, and explicit deletion confirmation.
+- HEAD metadata: size, content type, ETag, object version and custom metadata.
+- Copy a credential-free **API address**, not a public/presigned share link.
 
-   If Node.js is not installed, you can download and install it from the official [Node.js website](https://nodejs.org/).
+The object API has no bucket-enumeration endpoint, so no names are guessed. It also
+does not document conditional PUT/DELETE guarantees; those limitations are stated
+in the UI. Normal workflows use the Bearer object API, **not S3**.
+See [object storage](docs/object-storage.md) for semantics and limitations.
 
-3. **Install Dependencies**:
+## API workstation
 
-   Navigate to the cloned repository:
+- **Overview**, **Explorer**, **OpenAPI**, and session-only **Request history**.
+- Live OpenAPI catalog grouped by tags, with parameters, resolved body schemas and authentication requirements.
+- Controlled request execution and status/header/body inspection, including HTTP errors.
+- Copyable cURL and JavaScript fetch examples with runtime credential placeholders.
+- Redacted, bounded in-memory history; no secret persistence, automatic retries or invented endpoints.
 
-   ```bash
-   cd json-server-admin-dashboard
-   ```
+The catalog comes from the connected backend’s OpenAPI (Telegraph defaults to
+`https://telestorage.pages.dev/openapi.json`). S3 remains documentation-only:
+no browser SigV4 signer or Bearer substitute. The explorer is backend-neutral;
+connector policy owns URLs, authentication and execution permissions.
+See [API tooling](docs/api-tooling.md) for supported editors, security and limits.
 
-   Install project dependencies using npm:
+## Productivity tools
 
-   ```bash
-   npm install
-   ```
+- JSON import and schema-guided CSV import, with validation and preview before writes.
+- Explicit JSON/CSV export of selected or loaded records—not an implied full backup.
+- Multi-record selection, confirmed bulk update/delete and duplication through single-record connector operations.
+- Raw JSON editing, formatting, validation and a reviewed diff before versioned save.
+- Sequential progress, cancellation between requests, safe error reports and explicit version/idempotency-aware retries.
+- Existing API request builder / Files workflows plus local file metadata and SHA-256 inspection.
 
-4. **Configure Your Database**:
+Use **Tools for this page** in Data to carry a filtered or later page and its
+schema into Tools, or load a known collection directly. Batches are bounded to
+100 records and paced for Telegraph's shared mutation quota. No bulk endpoints,
+atomic transactions or background server jobs are invented.
+See [productivity tools](docs/productivity-tools.md) for limits and retry semantics.
 
-    In the `.env` file, provide the absolute path to your `db.json` file, which is used by your JSON server or lowdb. The format for the absolute path is as follows:
+## AI-assisted workflows
 
-    **Linux and macOS**:
+- Provider-neutral **AI assist** workspace with manual prompt/response mode and a trusted adapter registry—no live AI provider configured by default.
+- Explicit, redacted context review: backend/project, loaded OpenAPI/schema hints, selected records/objects and current filters. Bodies and API errors are opt-in.
+- Explain records/errors; propose test/schema-compatible data, JSON transforms, filters, read-only API requests and bulk edits.
+- Strict structured proposals, cancellation/stale-context guards, and separate draft handoff to Tools/Data/API. AI never executes mutations.
+- Existing authentication, backend validation, connector permissions and expected-version confirmation remain mandatory; credentials are not shared with a model.
 
-    ```bash
-    /absolute/path/to/your/db.json
-    ```
+See [AI workflows](docs/ai-workflows.md) for the manual workflow, adapter contract,
+privacy limits and supported proposal shapes. No AI backend or database is added.
 
-    **Windows**:
+## Production deployment and local development
 
-    ```bash
-    C:\absolute\path\to\your\db.json
-    ```
+```sh
+npm install              # use npm ci for reproducible CI installs
+npm test
+npm run build            # production artifact: dist/
+npm run preview          # read-only local preview on 0.0.0.0:3214
+```
 
-    Make sure the path is correctly specified.
+For Cloudflare Pages: **Framework None · Build `npm run build` · Output `dist`**.
+Node 22.22.3 is pinned for build/test tooling; production runs no Node process.
+`wrangler.jsonc` configures static Pages with no Function, database or service bindings.
 
-    **Note:** If you don't have a `db.json` file, you can create one following the json-server or lowdb documentation.
+- `npm run dev`: build once and preview; rebuild/reload after source changes.
+- `npm start`: local preview alias, not an Express or production server.
+- `npm run pages:preview`: actual Pages emulator on port 8788.
+- `npm run verify:pages`: bounded local Pages compatibility check; no deployment.
 
-5. **Start the Admin Dashboard**:
+**Environment:** `TELEGRAPH_URL` and `TELEGRAPH_PROJECT` are public build defaults,
+overridable in the runtime form. `TELEGRAPH_API_KEY` is accepted only as an
+in-memory runtime session credential; a private Pages secret is **never bundled
+or made available through a config endpoint**. A build-time key is not exported.
+The browser starts disconnected and clears the key field after connection.
 
-   After completing the above steps, you're ready to start the json-server Admin Dashboard:
+No lowdb, `DB_FILE_ABS_PATH`, filesystem persistence, local backend API or
+production Express dependency remains. Old local `.env` files are not loaded.
+Direct browser API requests still require Telegraph to permit your deployed
+origin through CORS. A concealed deployment-key gateway would require a separate,
+authenticated security design; there is no fake backend or public proxy here.
 
-   ```bash
-   npm start
-   ```
+See **[Cloudflare Pages deployment](docs/deployment.md)** for exact settings,
+secret boundaries, local iframe-preview options, CLI deployment and verification
+limitations. Only `dist/` should be published, never the repository root.
 
-6. **Access the Admin Dashboard**:
+## Architecture and documentation
 
-   Open your web browser and navigate to [http://localhost:3214](http://localhost:3214) to access the JSON Server Admin Dashboard.
+- [Productivity tools, import/export and bulk safety](docs/productivity-tools.md)
+- [Cloudflare Pages deployment and environment model](docs/deployment.md)
+- [API workstation, security and extension points](docs/api-tooling.md)
+- [Object storage workflows and limitations](docs/object-storage.md)
+- [Database integration, capabilities, and limitations](docs/database-integration.md)
+- [Connection contract, runtime configuration, and request security](docs/connection-architecture.md)
+- [Original architecture audit and migration rationale](docs/architecture-audit.md)
 
-7. **Enjoy!**
+The connection layer separates metadata, authentication, discovery, database, storage, and API operations. The UI invokes connector methods; only the controlled request client invokes fetch. Telegraph remains the sole remote data layer. The Data and Files workspaces use their respective connector operations. The API workstation uses the same connection boundary. An S3 browser signer and a managed-secret gateway are not implemented.
 
-## About the Author
+The old Express/lowdb backend, internal schema database, and positional/string-only editor have been retired. External legacy JSON data has not been modified or migrated.
 
-json-server Admin Dashboard is brought to you with love by **Ahmad Raza**. You can connect with Ahmad on [GitHub](https://github.com/razaahmad333).
+## Attribution
 
-This project is open source, and we welcome contributions and feedback. If you encounter any issues or have suggestions for improvements, please feel free to create an issue on the GitHub repository.
-
-Thank you for choosing json-server Admin Dashboard. We hope it enhances your experience with json-server and lowdb. Enjoy exploring and managing your data!
+This project began as [json-server Admin Dashboard](https://github.com/razaahmad333/json-server-admin-dashboard) by Ahmad Raza. Useful layout and interaction ideas informed this rework. The package retains the original MIT license declaration and author attribution.

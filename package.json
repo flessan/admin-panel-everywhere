@@ -1,42 +1,38 @@
 {
-  "name": "json-server-admin-dashboard",
+  "name": "admin-panel-everywhere",
   "version": "1.0.1",
-  "description": "Simple admin dashboard for json-server and lowdb",
-  "main": "server.js",
+  "description": "Static universal admin client with Telegraph Cloud document integration",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "test": "node --test",
+    "start": "npm run preview",
+    "dev": "npm run build && npm run preview",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs",
+    "pages:preview": "node scripts/pages-preview.mjs",
+    "pages:deploy": "npm run build && wrangler pages deploy dist",
+    "verify:pages": "node scripts/verify-pages.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/razaahmad333/json-server-admin-dashboard.git"
+    "url": "git+https://github.com/flessan/admin-panel-everywhere.git"
   },
   "keywords": [
     "admin-dashboard",
-    "json-server",
-    "lowdb"
+    "telegraph-cloud",
+    "cloudflare-pages"
   ],
   "author": "Ahmad Raza",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/razaahmad333/json-server-admin-dashboard/issues"
+    "url": "https://github.com/flessan/admin-panel-everywhere/issues"
   },
-  "homepage": "https://github.com/razaahmad333/json-server-admin-dashboard#readme",
-  "dependencies": {
-    "chalk": "4.1.2",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "lowdb": "^6.0.1"
-  },
+  "homepage": "https://github.com/flessan/admin-panel-everywhere#readme",
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "jsdom": "^26.1.0",
+    "wrangler": "4.135.0"
   },
-  "nodemonConfig": {
-    "ignore": [
-      "dashboard-ui/*",
-      "server/internalDB/db.json"
-    ]
+  "engines": {
+    "node": ">=22"
   }
 }
