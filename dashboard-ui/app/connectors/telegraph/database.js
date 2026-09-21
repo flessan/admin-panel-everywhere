@@ -31,6 +31,21 @@ export function normalizePage(payload, normalize = value => value) {
   return { items: payload.data.map(normalize), hasMore: payload.has_more, nextCursor: payload.next_cursor ?? null };
 }
 
+export function normalizeCollectionShare(payload) {
+  requireValue(payload && typeof payload === 'object' && !Array.isArray(payload), 'invalid_response');
+  requireValue(typeof payload.published === 'boolean' || typeof payload.share_id === 'string', 'invalid_response');
+  if (payload.published === false) return { published: false, shareId: null, url: null, rawUrl: null, createdAt: null };
+  requireValue(typeof payload.share_id === 'string' && /^pub_[A-Za-z0-9_-]{32}$/.test(payload.share_id), 'invalid_response');
+  requireValue(typeof payload.url === 'string' && typeof payload.raw_url === 'string', 'invalid_response');
+  return {
+    published: true,
+    shareId: payload.share_id,
+    url: payload.url,
+    rawUrl: payload.raw_url,
+    createdAt: typeof payload.created_at === 'string' ? payload.created_at : null,
+  };
+}
+
 export function createDatabase({ routes, assertOpen, collections = [], createIdempotencyKey }) {
   requireValue(Array.isArray(collections), 'invalid_configuration');
   const descriptors = collections.map(value => {
@@ -89,6 +104,27 @@ export function createDatabase({ routes, assertOpen, collections = [], createIde
         pathParameters: { collection, recordId }, json: { _expected_version: version(expectedVersion) }, signal,
       });
       return { deleted: true, version: data?.version ?? null, deletedAt: data?.deleted_at ?? data?.data?.deleted_at ?? null };
+    },
+    async getCollectionShare(collection, { signal } = {}) {
+      const result = await routes.request('GET /api/db/{collection}/share', {
+        pathParameters: { collection }, signal,
+      });
+      return normalizeCollectionShare(result.data);
+    },
+    async publishCollectionJson(collection, { regenerate = false, signal } = {}) {
+      const result = await routes.request('POST /api/db/{collection}/share', {
+        pathParameters: { collection },
+        json: regenerate ? { force: true } : {},
+        signal,
+      });
+      return normalizeCollectionShare(result.data);
+    },
+    async revokeCollectionJson(collection, { signal } = {}) {
+      const result = await routes.request('DELETE /api/db/{collection}/share', {
+        pathParameters: { collection }, signal,
+      });
+      requireValue(result.data && result.data.revoked === true && typeof result.data.share_id === 'string', 'invalid_response');
+      return { revoked: true, shareId: result.data.share_id };
     },
   };
   return database;
