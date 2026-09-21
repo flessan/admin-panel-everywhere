@@ -2,8 +2,9 @@ import { parseDocument, editableData, initialDocument, normalizeSchema, validate
 import { displayError } from './errors.js';
 
 const idleRecords = () => ({ status: 'idle', items: [], hasMore: false, nextCursor: null, error: null, cursors: [null], page: 0, limit: 20, filters: {} });
+const idleShare = () => ({ status: 'idle', published: false, shareId: null, url: null, rawUrl: null, createdAt: null, error: null });
 const initialState = () => ({ connected: false, collections: { status: 'idle', items: [], source: 'unavailable', complete: false, error: null },
-  collection: null, schema: { status: 'idle', schema: null, source: 'unavailable', error: null }, records: idleRecords(), editor: null, notice: '' });
+  collection: null, schema: { status: 'idle', schema: null, source: 'unavailable', error: null }, share: idleShare(), records: idleRecords(), editor: null, notice: '' });
 
 /** Transient view state only. All data operations delegate to the active connector. */
 export function createDataController({ createKey = () => crypto.randomUUID() } = {}) {
@@ -54,6 +55,21 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
         if (current(g, revision)) state.schema = { status: 'error', schema: null, source: 'unavailable', error: displayError(error) };
       }
     })() : Promise.resolve();
+    const shareTask = (async () => {
+      try {
+        const method = connection.database.getCollectionShare;
+        if (typeof method !== 'function') {
+          if (current(g, revision)) state.share = { ...idleShare(), status: 'unavailable' };
+          return;
+        }
+        if (current(g, revision)) state.share = { ...idleShare(), status: 'loading' };
+        const result = await method(name, { signal });
+        if (current(g, revision)) state.share = { ...idleShare(), ...result, status: 'ready', error: null };
+      } catch (error) {
+        if (signal.aborted || g !== generation) return;
+        if (current(g, revision)) state.share = { ...idleShare(), status: 'error', error: displayError(error) };
+      }
+    })();
     try {
       const result = await db.listRecords(name, { limit: state.records.limit, cursor: state.records.cursors[state.records.page], filters: state.records.filters, signal });
       if (!current(g, revision)) return;
@@ -69,8 +85,25 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
       if (!current(g, revision)) return;
       state.records.status = 'error'; state.records.error = displayError(error);
     }
-    await schemaTask;
+    await Promise.all([schemaTask, shareTask]);
     if (current(g, revision)) emit();
+  }
+
+  async function loadShare() {
+    if (!connection || !state.collection) return;
+    const method = connection.database.getCollectionShare;
+    if (typeof method !== 'function') {
+      state.share = { ...idleShare(), status: 'unavailable' };
+      return;
+    }
+    state.share = { ...idleShare(), status: 'loading' };
+    emit();
+    try {
+      const result = await method(state.collection);
+      state.share = { ...idleShare(), ...result, status: 'ready', error: null };
+    } catch (error) {
+      state.share = { ...idleShare(), status: 'error', error: displayError(error) };
+    }
   }
 
   async function openCollection(name) {
@@ -194,6 +227,45 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
     editor.draft = JSON.stringify(editableData(editor.record.data), null, 2); editor.revision = ++editorRevision;
     emit();
   }
+  async function publishShare({ regenerate = false } = {}) {
+    if (!connection || !state.collection || state.share.status === 'loading' || state.share.status === 'publishing') return state.share;
+    const method = connection.database.publishCollectionJson;
+    if (typeof method !== 'function') return { ...state.share, status: 'unavailable' };
+    const g = generation, name = state.collection;
+    state.share.status = 'publishing'; state.share.error = null; emit();
+    try {
+      const result = await method(name, { regenerate });
+      if (g !== generation || state.collection !== name) return result;
+      state.share = { ...idleShare(), ...result, status: 'ready', error: null };
+      state.notice = regenerate ? 'Public JSON link regenerated.' : 'Collection published as public JSON.';
+      emit();
+      return state.share;
+    } catch (error) {
+      if (g !== generation || state.collection !== name) return state.share;
+      state.share.status = 'ready'; state.share.error = displayError(error); emit();
+      throw error;
+    }
+  }
+
+  async function revokeShare() {
+    if (!connection || !state.collection || !['ready', 'error'].includes(state.share.status) || !state.share.published) return;
+    const method = connection.database.revokeCollectionJson;
+    if (typeof method !== 'function') return;
+    const g = generation, name = state.collection;
+    state.share.status = 'publishing'; state.share.error = null; emit();
+    try {
+      await method(name);
+      if (g !== generation || state.collection !== name) return;
+      state.share = { ...idleShare(), status: 'ready' };
+      state.notice = 'Public JSON link revoked.';
+      emit();
+    } catch (error) {
+      if (g !== generation || state.collection !== name) return;
+      state.share.status = 'ready'; state.share.error = displayError(error); emit();
+      throw error;
+    }
+  }
+
   function applySchema(schema) {
     if (!state.collection || busy()) return;
     normalizeSchema(schema);
@@ -210,5 +282,6 @@ export function createDataController({ createKey = () => crypto.randomUUID() } =
       if (next) await loadCollections();
     },
     loadCollections, openCollection, refresh, page, setQuery, openEditor, setDraft, closeEditor, save, compareLatest, useLatest, applySchema,
+    loadShare, publishShare, revokeShare,
   };
 }
