@@ -214,7 +214,8 @@ export function mountWorkspace(document, { data, files, api, enterApi = () => {}
   function renderEmpty(name, state) {
     if (!state) return;
     const value = name === 'data' ? state.records : state.objects, selected = name === 'data' ? state.collection : state.bucket;
-    const empty = $(`${name}-empty-state`); empty.hidden = Boolean(value.items?.length || (name === 'files' && value.commonPrefixes?.length));
+    const localSheetRows = name === 'data' ? document.querySelectorAll('#record-table tbody tr:not(.sheet-empty)').length : 0;
+    const empty = $(`${name}-empty-state`); empty.hidden = Boolean(value.items?.length || localSheetRows || (name === 'files' && value.commonPrefixes?.length));
     const loading = value.status === 'loading', failed = value.status === 'error';
     text(`${name}-empty-title`, !state.connected ? 'No active connection' : loading ? `Loading ${name === 'data' ? 'records' : 'objects'}…` : failed ? 'This view could not be loaded' : !selected ? `Choose a ${name === 'data' ? 'collection' : 'bucket'}` : 'Nothing in this view yet');
     text(`${name}-empty-description`, !state.connected ? 'Configure a backend to start working. Your credentials stay in this tab.' : loading ? 'Waiting for the connected backend.' : failed ? 'Review the error above, then retry when you are ready.' : !selected ? `Open an exact ${name === 'data' ? 'collection' : 'bucket'} name in the browser panel.` : name === 'data' ? 'Try different filters, or create a record with the normal validation flow.' : 'Try another prefix, or upload an object to this bucket.');
