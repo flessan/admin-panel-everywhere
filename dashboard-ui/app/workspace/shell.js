@@ -218,10 +218,10 @@ export function mountWorkspace(document, { data, files, api, enterApi = () => {}
     const empty = $(`${name}-empty-state`); empty.hidden = Boolean(value.items?.length || localSheetRows || (name === 'files' && value.commonPrefixes?.length));
     const loading = value.status === 'loading', failed = value.status === 'error';
     text(`${name}-empty-title`, !state.connected ? 'No active connection' : loading ? `Loading ${name === 'data' ? 'records' : 'objects'}…` : failed ? 'This view could not be loaded' : !selected ? `Choose a ${name === 'data' ? 'collection' : 'bucket'}` : 'Nothing in this view yet');
-    text(`${name}-empty-description`, !state.connected ? 'Configure a backend to start working. Your credentials stay in this tab.' : loading ? 'Waiting for the connected backend.' : failed ? 'Review the error above, then retry when you are ready.' : !selected ? `Open an exact ${name === 'data' ? 'collection' : 'bucket'} name in the browser panel.` : name === 'data' ? 'Try different filters, or create a record with the normal validation flow.' : 'Try another prefix, or upload an object to this bucket.');
+    text(`${name}-empty-description`, !state.connected ? 'Configure a backend to start working. Your credentials stay in this tab.' : loading ? 'Waiting for the connected backend.' : failed ? 'Review the error above, then retry when you are ready.' : !selected ? `Open an exact ${name === 'data' ? 'collection' : 'bucket'} name in the browser panel.` : name === 'data' ? 'Add a row directly in the spreadsheet editor.' : 'Try another prefix, or upload an object to this bucket.');
     $(`${name}-loading-progress`).hidden = !loading;
     const button = $(`${name}-empty-action`); button.hidden = loading;
-    button.textContent = !state.connected ? 'Configure connection' : failed ? 'Retry loading' : !selected ? `Choose ${name === 'data' ? 'collection' : 'bucket'}` : name === 'data' ? 'Create record' : 'Upload object';
+    button.textContent = !state.connected ? 'Configure connection' : failed ? 'Retry loading' : !selected ? `Choose ${name === 'data' ? 'collection' : 'bucket'}` : name === 'data' ? 'Add row' : 'Upload object';
     button.onclick = () => {
       if (!state.connected) navigate('connections', { focus: true });
       else if (failed) $(name === 'data' ? 'refresh-records' : 'files-refresh').click();
