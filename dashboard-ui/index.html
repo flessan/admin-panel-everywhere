@@ -1,107 +1,276 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin Dashboard for json-server</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-      crossorigin="anonymous" />
-    <link rel="stylesheet" href="./assets/styles.css">
-    
-  </head>
-  <body>
-    <nav class="navbar bg-body-tertiary">
-      <div class="container-fluid">
-        <span class="navbar-brand mb-0 h1" id="database-name">Admin Dashboard for <i>json-server & lowdb </i> </span>
-      </div>
-    </nav>
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel Everywhere · Workspace</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
 
-    <div class="container-fluid mt-3">
-      <div class="row">
-        <div class="col-md-3 bg-body-tertiary py-2">
-          <h5>Tables</h5>
-
-          <div class="input-group mb-2" id="new-table-create-block">
-            <input type="text" class="form-control" placeholder="create a new table..." />
-            <button type="button" class="btn btn-secondary">Create</button>
-          </div>
-
-          <ul class="list-group list-group" id="table-names"></ul>
-        </div>
-        <div class="col-md-9">
-          <div id="mainbar">
-            <div class="d-flex justify-content-between align-items-center">
-
-              <h6 id="table-name">No table selected</h6>
-
-              <div class="input-group mb-2 w-50" id="search-in-table-block">
-                <input type="text" class="form-control" placeholder="search in table..." />
-                <button type="button" class="btn btn-secondary">Search</button>
-              </div>
-
-              <button type="button" data-bs-toggle="modal" data-bs-target="#add-row-modal" id="open-add-row-modal-button" class="btn btn-secondary">
-                + Add Row
-              </button>
-            </div>
-
-            <table class="table" id="table-data">
-              
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="modal fade" id="add-row-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <form id="add-row-form">
-            <div class="modal-header">
-              <h1 class="modal-title fs-5" id="exampleModalLabel">Add Row</h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <div class="modal-body">
-              <div id="add-row-form-body"></div>
-
-              <div class="input-group mb-2" id="add-field-block">
-                <input type="text" class="form-control" placeholder="add new column" />
-                <button type="button" class="btn btn-secondary">Add</button>
-              </div>              
-            </div>
+  <div class="app-shell"><a class="skip-link" href="#main-content">Skip to workspace</a>
+<aside id="app-sidebar" class="app-sidebar" aria-label="Main navigation">
+  <a class="brand" href="#/overview" aria-label="Admin Panel Everywhere overview"><span class="brand-mark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg></span><span>Admin Panel<span class="brand-sub">EVERYWHERE</span></span></a>
+  <button id="close-navigation" type="button" class="icon-button mobile-only" aria-label="Close navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"></path></svg></button>
+  <button type="button" class="workspace-switch" data-route="connections"><span class="workspace-avatar">W</span><span><strong>Developer workspace</strong><small>Personal session</small></span><span aria-hidden="true">⌄</span></button>
+  <p class="nav-label">WORKSPACE</p><nav aria-label="Workspace navigation">
+  <div class="nav-group"><button id="overview-workspace-tab" type="button" class="nav-item" data-route="overview" aria-controls="overview-workspace"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg><span>Overview</span></button></div>
+  <div class="nav-group"><button id="data-workspace-tab" type="button" class="nav-item" data-route="data" aria-controls="data-workspace" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"></path></svg><span>Data</span><span class="nav-chevron" aria-hidden="true">›</span></button><div class="nav-children" data-nav-group="data" hidden=""><button type="button" class="nav-sub" data-route="data/collections">Collections</button><button type="button" class="nav-sub" data-route="data/records">Records</button><button type="button" class="nav-sub" data-route="data/schema">Schema</button></div></div>
+  <div class="nav-group"><button id="files-workspace-tab" type="button" class="nav-item" data-route="files" aria-controls="files-workspace" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path></svg><span>Files</span><span class="nav-chevron" aria-hidden="true">›</span></button><div class="nav-children" data-nav-group="files" hidden=""><button type="button" class="nav-sub" data-route="files/objects">Objects</button><button type="button" class="nav-sub" data-route="files/buckets">Buckets</button></div></div>
+  <div class="nav-group"><button id="api-workspace-tab" type="button" class="nav-item" data-route="api" aria-controls="api-workspace" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"></path></svg><span>API</span><span class="nav-chevron" aria-hidden="true">›</span></button><div class="nav-children" data-nav-group="api" hidden=""><button type="button" class="nav-sub" data-route="api/explorer">Explorer</button><button type="button" class="nav-sub" data-route="api/openapi">OpenAPI</button><button type="button" class="nav-sub" data-route="api/history">Requests</button></div></div>
+  <div class="nav-group"><button id="tools-workspace-tab" type="button" class="nav-item" data-route="tools" aria-controls="tools-workspace" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 6a5 5 0 0 0-6 6l-5 5a2.8 2.8 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 3-4-4Z"></path></svg><span>Tools</span><span class="nav-chevron" aria-hidden="true">›</span></button><div class="nav-children" data-nav-group="tools" hidden=""><button type="button" class="nav-sub" data-route="tools/import">Import</button><button type="button" class="nav-sub" data-route="tools/export">Export</button><button type="button" class="nav-sub" data-route="tools/bulk">Bulk Actions</button><button type="button" class="nav-sub" data-route="tools/json">JSON</button><button id="ai-workspace-tab" type="button" class="nav-sub" data-route="ai">AI assist</button></div></div>
+  <p class="nav-label">MANAGE</p>
+  <div class="nav-group"><button id="connections-workspace-tab" type="button" class="nav-item" data-route="connections" aria-controls="connections-workspace" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7H6a5 5 0 0 0 0 10h3m6-10h3a5 5 0 0 1 0 10h-3M8 12h8"></path></svg><span>Connections</span><span class="nav-chevron" aria-hidden="true">›</span></button><div class="nav-children" data-nav-group="connections" hidden=""><button type="button" class="nav-sub" data-route="connections/telegraph">Telegraph Cloud</button><button type="button" class="nav-sub" data-route="connections/other">Other Connections</button></div></div>
+  <div class="nav-group"><button id="settings-workspace-tab" type="button" class="nav-item" data-route="settings" aria-controls="settings-workspace"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path><circle cx="8" cy="6" r="2"></circle><circle cx="16" cy="12" r="2"></circle><circle cx="10" cy="18" r="2"></circle></svg><span>Settings</span></button></div>
+  </nav>
+  <div class="sidebar-bottom"><button id="shortcuts-open" class="quiet-button" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"></path></svg><span>Keyboard shortcuts</span><kbd>?</kbd></button><button class="sidebar-session" type="button" data-route="connections"><span id="sidebar-dot" class="status-dot"></span><span><strong id="sidebar-connection">Not connected</strong><small>Credentials stay in memory</small></span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg></button></div>
+</aside>
+<button id="navigation-scrim" type="button" class="navigation-scrim" aria-label="Close navigation" hidden=""></button>
+<div class="workspace-frame"><header id="workspace-header" class="workspace-header"><div class="header-location"><button id="open-navigation" type="button" class="icon-button mobile-only" aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button><span class="breadcrumb-root">Workspace</span><span class="breadcrumb-divider" aria-hidden="true">/</span><span id="workspace-breadcrumb">Overview</span></div><div class="header-actions"><button id="command-open" aria-label="Go to workspace (Ctrl or Command K)" class="command-trigger" type="button" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><span>Go to…</span><kbd>Ctrl K</kbd></button><span class="session-badge"><span class="status-dot"></span>Session only</span><span class="user-avatar" aria-label="Personal workspace">W</span></div></header><main id="main-content" tabindex="-1" class="main-content"><section id="overview-workspace" class="overview-workspace" aria-labelledby="overview-title"><div class="page-heading"><div><p class="eyebrow">YOUR WORKSPACE</p><h1 id="overview-title" tabindex="-1">Overview</h1><p class="page-description">Your backend, with everything in reach.</p></div><div class="toolbar"><button type="button" data-route="api/explorer"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"></path></svg>API explorer</button><button type="button" class="primary" data-route="connections/telegraph"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7H6a5 5 0 0 0 0 10h3m6-10h3a5 5 0 0 1 0 10h-3M8 12h8"></path></svg>Manage connection</button></div></div>
+<div class="connection-banner"><span class="banner-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7H6a5 5 0 0 0 0 10h3m6-10h3a5 5 0 0 1 0 10h-3M8 12h8"></path></svg></span><div><h2 id="overview-connection-title">Connect your workspace</h2><p id="overview-connection-description">Bring your data, files, and API into one place. Start with a Telegraph Cloud connection.</p></div><button type="button" data-route="connections/telegraph" id="overview-connect">Connect backend <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg></button></div>
+<div class="metric-grid"><article class="metric-card"><div><span>Collections</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"></path></svg></div><strong id="overview-collections">—</strong><p id="overview-collections-note">Connect to discover known names</p></article><article class="metric-card"><div><span>Object buckets</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path></svg></div><strong id="overview-buckets">—</strong><p id="overview-buckets-note">Configured and session buckets</p></article><article class="metric-card"><div><span>API operations</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"></path></svg></div><strong id="overview-operations">—</strong><p id="overview-operations-note">Load an OpenAPI document</p></article><article class="metric-card"><div><span>API requests</span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg></div><strong id="overview-requests">0</strong><p>Retained in this browser session</p></article></div>
+<div class="overview-grid"><section class="panel"><div class="panel-heading"><div><h2>Workspace shortcuts</h2><p>Pick up where you need to work.</p></div><span class="quiet-label">QUICK ACCESS</span></div><div class="shortcut-grid">
+<button class="shortcut-card" type="button" data-route="data/records"><span class="shortcut-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"></path></svg></span><span><strong>Browse data</strong><small>Collections, records, and schema</small></span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg></button><button class="shortcut-card" type="button" data-route="files/objects"><span class="shortcut-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path></svg></span><span><strong>Manage files</strong><small>Objects, metadata, and transfers</small></span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg></button><button class="shortcut-card" type="button" data-route="api/explorer"><span class="shortcut-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"></path></svg></span><span><strong>Explore your API</strong><small>Documented requests and responses</small></span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg></button><button class="shortcut-card" type="button" data-route="tools/import"><span class="shortcut-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 6a5 5 0 0 0-6 6l-5 5a2.8 2.8 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 3-4-4Z"></path></svg></span><span><strong>Work with data</strong><small>Import, export, and bulk actions</small></span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"></path></svg></button>
+</div><div class="panel-footer"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4"></path></svg>Need a starting point? Prepare a reviewed draft with AI.</span><button type="button" class="text-button" data-route="ai">Open AI assist →</button></div></section>
+<section class="panel session-panel"><div class="panel-heading"><h2>Connection details</h2><span id="overview-status" class="pill">Not configured</span></div><dl class="technical-list"><div><dt>Connector</dt><dd id="overview-connector">None selected</dd></div><div><dt>Endpoint</dt><dd id="overview-origin">Not configured</dd></div><div><dt>Project</dt><dd id="overview-project">Not configured</dd></div><div><dt>Credentials</dt><dd>In-memory only <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Zm-4 9 3 3 5-6"></path></svg></dd></div></dl><button type="button" class="text-button" data-route="connections">Connection settings →</button></section></div>
+<section class="panel request-panel"><div class="panel-heading"><div><h2>Recent API requests</h2><p>Explicitly executed in the API workstation. Data and Files activity is not logged here.</p></div><button class="text-button" type="button" data-route="api/history">View requests →</button></div><div id="overview-request-empty" class="overview-empty"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"></path></svg><strong>No API requests yet</strong><span>Executed requests will appear here for this session.</span><button type="button" data-route="api/explorer">Open explorer</button></div><ul id="overview-request-list" class="request-list" hidden=""></ul></section>
+<footer class="workspace-footer"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Zm-4 9 3 3 5-6"></path></svg>Your backend is the source of truth. No local database.</span><span>Admin Panel Everywhere <span class="footer-dot">·</span> Browser workspace</span></footer></section>
 
 
-            <div class="modal-footer">
-              <button type="button" class="btn" id="close-add-row-modal-button" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary" data-id="save">Save</button>
-            </div>
+    <div class="workspace" id="data-workspace" hidden="" aria-label="Data workspace">
+      <aside aria-label="Collections" id="collections-browser" class="resource-sidebar">
+        <div class="toolbar"><h2>Collections</h2><button id="reload-collections" type="button">Reload</button></div>
+        <p id="collection-state" role="status" aria-live="polite"></p>
+        <details class="discovery-note"><summary>About discovery</summary><div id="collection-limit" class="help">
+          <p>The documented developer API does not enumerate collections. Discover names and schemas in the <a id="console-link" target="_blank" rel="noopener noreferrer">Telegraph console</a>, then open the exact name below. This list is not a complete remote catalog.</p>
+        </div></details>
+        <form id="open-collection-form">
+          <label>Known collection name<input id="collection-input" required="" pattern="[a-z][a-z0-9_-]{0,63}" autocomplete="off"></label>
+          <button id="open-collection" type="submit">Open collection</button>
+          <small>Verified by a read request. No collection is created.</small>
+        </form>
+        <ul id="collection-list"></ul>
+      </aside>
+      <section class="data-panel" aria-label="Data">
+        <div class="toolbar"><div><p class="eyebrow">DATA</p><h1 id="collection-title" tabindex="-1">Choose a collection</h1></div><button id="refresh-records" type="button">Refresh</button><button id="create-record" type="button" class="primary">Create record</button><button id="data-tools" type="button" disabled="">Tools for this page</button></div>
+        <p id="notice" role="status" aria-live="polite"></p>
+        <div role="tablist" class="tabs" aria-label="Data views"><button id="records-tab" role="tab" aria-controls="records-panel" aria-selected="true">Records</button><button id="schema-tab" role="tab" aria-controls="schema-panel" aria-selected="false">Schema</button></div>
+        <section id="records-panel" role="tabpanel" aria-labelledby="records-tab">
+          <form id="filter-form">
+            <fieldset id="filter-fields" class="filter-row">
+              <label>Indexed field<input id="filter-field" list="indexed-fields" autocomplete="off" placeholder="Field name"></label><datalist id="indexed-fields"></datalist>
+              <label>Exact string value<input id="filter-value" placeholder="Exact match"></label>
+              <label>Page size<select id="page-size"><option>10</option><option selected="">20</option><option>50</option><option>100</option></select></label>
+              <button type="submit">Apply filter / size</button><button id="clear-filters" type="button">Clear filters</button>
+            </fieldset>
           </form>
-        </div>
-      </div>
+          <p class="help">Up to four indexed top-level string equality filters. This is not full-text search. If indexes are unknown, confirm the field in the console.</p>
+          <section id="data-ai-filters" hidden=""><h3>Proposed AI filters</h3><p>Draft only. Applying replaces the current filters and performs a normal connector read.</p><pre id="data-ai-filter-preview"></pre><button id="data-ai-apply-filters" type="button">Apply reviewed filters</button><button id="data-ai-discard-filters" type="button">Discard draft</button></section>
+          <p id="active-filters" class="help"></p><p id="filter-error" role="alert"></p>
+          <p id="records-state" role="status" aria-live="polite"></p>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="Records table; scroll horizontally for more fields"><table id="record-table"></table></div><div id="data-empty-state" class="empty-state"><span class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"></path></svg></span><h2 id="data-empty-title">No collection selected</h2><p id="data-empty-description">Open an exact collection name to browse its records.</p><progress id="data-loading-progress" aria-label="Loading data" hidden=""></progress><button type="button" id="data-empty-action">Configure connection</button></div>
+          <nav class="pagination" aria-label="Record pages"><button id="previous-page" type="button">Previous</button><span id="page-label">Page 1</span><button id="next-page" type="button">Next</button></nav>
+        </section>
+        <section id="schema-panel" role="tabpanel" aria-labelledby="schema-tab" hidden="">
+          <h2>Collection schema</h2><p id="schema-state" role="status"></p><button type="button" class="copy-technical" data-copy-target="schema-json" aria-label="Copy schema json">Copy JSON</button><pre id="schema-json"></pre>
+          <details><summary>Use provided schema metadata for this session</summary>
+            <p class="help">Paste a field list or an object with fields from an authorized source. Supported types: text, number, boolean, datetime, json, file, select. This does not change the backend schema.</p>
+            <form id="schema-form"><label>Schema JSON<textarea id="schema-input" rows="10" spellcheck="false"></textarea></label><button id="apply-schema" type="submit">Use session schema</button><p id="schema-error" role="alert"></p></form>
+          </details>
+        </section>
+      </section>
     </div>
+    <div class="workspace" id="files-workspace" hidden="" aria-label="Files workspace">
+      <aside aria-label="Buckets" id="buckets-browser" class="resource-sidebar">
+        <div class="toolbar"><h2>Buckets</h2><button id="reload-buckets" type="button">Reload</button></div>
+        <p id="bucket-state" role="status" aria-live="polite"></p>
+        <details class="discovery-note"><summary>About discovery</summary><p id="bucket-limit" class="help">The documented object API does not enumerate buckets. Use a configured name or find it in the <a id="files-console-link" target="_blank" rel="noopener noreferrer">Telegraph console</a>. This is not a complete remote catalog.</p></details>
+        <form id="open-bucket-form"><label>Exact bucket name<input id="bucket-input" required="" minlength="3" maxlength="63" autocomplete="off"></label><button id="open-bucket" type="submit">Open bucket</button></form>
+        <ul id="bucket-list"></ul>
+        <details><summary>Advanced: S3 compatibility</summary><p class="help">S3 is for external compatibility/tooling, not this browser workflow. Its separate credentials are neither requested nor loaded here. Presigned URLs and multipart uploads are not supported.</p></details>
+      </aside>
+      <section class="data-panel" aria-label="Objects">
+        <div class="toolbar"><div><p class="eyebrow">FILES</p><h1 id="files-title" tabindex="-1">Choose a bucket</h1></div><button id="files-refresh" type="button">Refresh objects</button></div>
+        <p id="files-location" class="help"></p>
+        <div class="toolbar"><button id="files-root" type="button">Bucket root</button><button id="files-up" type="button">Up one prefix</button></div>
+        <form id="prefix-form"><fieldset id="prefix-controls" class="filter-row">
+          <label>Key starts with (prefix)<input id="prefix-input" autocomplete="off"></label>
+          <label class="include-field"><input id="folder-mode" type="checkbox" checked=""> Group by /</label>
+          <label>Page size<select id="files-page-size"><option>20</option><option selected="">50</option><option>100</option></select></label><button type="submit">Apply prefix / size</button>
+        </fieldset></form>
+        <p class="help">Server-side prefix matching only—not substring or content search. Prefixes are virtual groupings, not real directories.</p>
+        <p id="files-local-error" role="alert"></p><p id="files-notice" role="status" aria-live="polite"></p><p id="files-operation" role="status" aria-live="polite"></p><p id="files-error" role="alert"></p>
+        <p id="objects-state" role="status" aria-live="polite"></p>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Objects table; scroll horizontally for more fields"><table id="objects-table"></table></div><div id="files-empty-state" class="empty-state"><span class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path></svg></span><h2 id="files-empty-title">No bucket selected</h2><p id="files-empty-description">Open a bucket to browse objects and inspect metadata.</p><progress id="files-loading-progress" aria-label="Loading files" hidden=""></progress><button type="button" id="files-empty-action">Configure connection</button></div>
+        <nav class="pagination" aria-label="Object pages"><button id="files-previous" type="button">Previous</button><span id="files-page">Page 1</span><button id="files-next" type="button">Next</button></nav>
+        <details id="upload-panel"><summary>Upload an object</summary>
+          <form id="upload-form"><fieldset id="upload-controls" class="files-upload">
+            <label>Destination bucket<input id="upload-bucket" required=""></label><label>Full object key<input id="upload-key" required=""></label>
+            <label>File (maximum 20 MiB)<input id="upload-file" type="file" required=""></label><span id="upload-size" class="help"></span>
+            <label>Content type<input id="upload-type" value="application/octet-stream" required=""></label>
+            <label>Custom metadata (JSON object of strings, at most 20 entries)<textarea id="upload-metadata" rows="3" spellcheck="false">{}</textarea></label>
+            <label class="include-field"><input id="upload-ack" type="checkbox" required=""> I understand PUT can replace an existing key and may create a new bucket. Conditional writes are not documented.</label>
+            <button type="submit" class="primary">Upload object</button>
+          </fieldset><p id="upload-local-error" role="alert"></p></form>
+        </details>
+        <section class="object-details" aria-label="Object details">
+          <div class="toolbar"><h2 id="object-details-title">Object details</h2><button id="object-refresh" type="button">Refresh metadata</button></div>
+          <p id="object-state" role="status" aria-live="polite"></p><dl id="object-metadata"></dl>
+          <p id="etag-note" class="help"></p>
+          <form id="download-form"><fieldset id="download-controls" class="filter-row"><label>Optional byte range<input id="download-range" placeholder="bytes=0-1023" autocomplete="off"></label><button type="submit">Download object</button></fieldset></form>
+          <p class="help">Downloads use authenticated GET, never credentials in URLs. Partial downloads are saved with a .part suffix. No inline preview of untrusted file contents.</p>
+          <div class="toolbar"><button id="copy-object-url" type="button">Copy API address</button><button id="delete-object" type="button" class="danger-outline">Delete object…</button></div>
+          <label>Credential-free API address (authentication still required)<input id="object-url" readonly=""></label><p id="copy-result" role="status" class="help"></p>
+          <details><summary>Last download response</summary><pre id="transfer-result"></pre></details>
+        </section>
+      </section>
+    </div>
+    <section id="api-workspace" hidden="" aria-label="Api workspace">
+      <div class="toolbar"><div><p class="eyebrow">API WORKSTATION</p><h1 tabindex="-1">Explore the documented API</h1></div><button id="api-load" type="button">Load OpenAPI</button></div>
+      <p id="api-state" role="status" aria-live="polite"></p><p id="api-error" role="alert"></p>
+      <nav class="tabs" role="tablist" aria-label="API sections">
+        <button id="api-overview-tab" role="tab" aria-controls="api-overview-panel" aria-selected="true">Overview</button>
+        <button id="api-explorer-tab" role="tab" aria-controls="api-explorer-panel" aria-selected="false">Explorer</button>
+        <button id="api-openapi-tab" role="tab" aria-controls="api-openapi-panel" aria-selected="false">OpenAPI</button>
+        <button id="api-history-tab" role="tab" aria-controls="api-history-panel" aria-selected="false">Requests</button>
+      </nav>
+      <section id="api-overview-panel" role="tabpanel" aria-labelledby="api-overview-tab">
+        <h2>API overview</h2><p id="api-source" class="help"></p><p id="api-overview-summary"></p>
+        <p>Operations come only from the connected backend’s OpenAPI document. A connector policy independently controls execution and the destination origin; document server URLs cannot redirect your credential.</p>
+        <p>Telegraph’s source is <code>https://telestorage.pages.dev/openapi.json</code> on the default connection. Its Object API uses Bearer authentication; S3 requires separate SigV4 signing and is documentation-only here.</p>
+        <p>Requests run only when explicitly executed, without automatic retries. Non-read operations require acknowledgement. Cancelling cannot undo a mutation already accepted by the service.</p>
+        <p>Parameters and JSON syntax receive basic validation, not full JSON Schema validation. Schemas and authentication alternatives are shown for reference. Browser CORS rules still apply.</p>
+        <p class="warning">Credentials stay in memory. Examples, documents, responses and history are redacted, but may still contain business data. Do not enter credentials into paths or query parameters, or share exports without reviewing them.</p>
+      </section>
+      <section id="api-explorer-panel" role="tabpanel" aria-labelledby="api-explorer-tab" hidden="">
+        <div class="api-layout"><aside aria-label="API operations"><label>Filter documented operations<input id="api-search" type="search" autocomplete="off" placeholder="Method, path, or tag…"></label><div id="api-operation-list"></div></aside>
+        <section class="api-detail"><p class="help">Choose a documented operation. Preview generation makes no operation request.</p>
+          <div id="api-editor" hidden=""><h2 id="api-operation-title"></h2><div id="api-operation-details"></div>
+            <form id="api-request-form" autocomplete="off"><fieldset id="api-request-controls">
+              <h3>Parameters</h3><div id="api-parameters"></div>
+              <details><summary>Additional documented query / header inputs</summary>
+                <p class="help">For contracts such as dynamic database filters or x-amz-meta-* headers. Only enter documented non-secret parameters. The connector rejects unsupported names. No Authorization or cookie overrides.</p>
+                <label>Extra query (JSON object of scalar values)<textarea id="api-extra-query" rows="3" spellcheck="false">{}</textarea></label>
+                <label>Extra headers (JSON object of strings)<textarea id="api-extra-headers" rows="3" spellcheck="false">{}</textarea></label>
+              </details>
+              <div id="api-body-section"><h3>Request body</h3><div id="api-body-schema"></div>
+                <label>Content type<select id="api-content-type"></select></label>
+                <label id="api-body-text-label">Body (JSON or documented text)<textarea id="api-body-text" rows="10" spellcheck="false"></textarea></label>
+                <label id="api-body-file-label" hidden="">Binary body<input id="api-body-file" type="file"></label>
+              </div>
+              <label id="api-mutation-label" class="include-field"><input id="api-mutation-ack" type="checkbox"> I authorize this non-read operation and understand it may modify data or issue credentials.</label>
+              <div class="toolbar"><button id="api-reset-draft" type="button">Reset request inputs</button><button id="api-preview" type="button">Generate examples</button><button id="api-execute" class="primary" type="submit">Execute request</button></div>
+            </fieldset></form>
+            <button id="api-cancel" type="button" disabled="">Cancel request</button>
+          </div>
+          <details><summary>Redacted request preview</summary><pre id="api-request-preview"></pre></details>
+          <h3>Copyable examples</h3><p class="help">Runtime placeholders only. Binary bodies use an external file; request-body previews over 64 KiB are omitted. Redacted values must be replaced securely before use. Do not save real secrets in source or shell history.</p>
+          <label>cURL<textarea id="api-curl" rows="7" readonly="" spellcheck="false"></textarea></label><button id="api-copy-curl" type="button" disabled="">Copy cURL</button>
+          <label>JavaScript fetch<textarea id="api-javascript" rows="12" readonly="" spellcheck="false"></textarea></label><button id="api-copy-javascript" type="button" disabled="">Copy JavaScript</button><p id="api-copy-status" role="status"></p>
+          <h3>Response inspector</h3><p id="api-response-status" role="status" aria-live="polite"></p>
+          <p class="help">HTTP errors are inspectable, not retried. Only browser-exposed headers are available. Binary bytes and text bodies over 64 KiB are omitted. Content is displayed as text, never executed.</p>
+          <h4>Headers</h4><button type="button" class="copy-technical" data-copy-target="api-response-headers" aria-label="Copy api response headers">Copy JSON</button><pre id="api-response-headers"></pre><h4>Body</h4><button type="button" class="copy-technical" data-copy-target="api-response-body" aria-label="Copy api response body">Copy JSON</button><pre id="api-response-body"></pre>
+        </section></div>
+      </section>
+      <section id="api-openapi-panel" role="tabpanel" aria-labelledby="api-openapi-tab" hidden=""><h2>OpenAPI document</h2><p class="help">Read-only, redacted document. Example/default values are omitted to avoid importing credentials. Local references are resolved in Explorer; external and circular references are not fetched.</p><button type="button" class="copy-technical" data-copy-target="api-spec" aria-label="Copy api spec">Copy JSON</button><pre id="api-spec"></pre></section>
+      <section id="api-history-panel" role="tabpanel" aria-labelledby="api-history-tab" hidden=""><div class="toolbar"><h2>Request history</h2><button id="api-history-clear" type="button">Clear history</button></div><p class="help">The last 50 executed requests in memory only. Request/response credentials are redacted; binary bytes are excluded. Disconnecting, changing the connection or reloading the page clears this history. No automatic replay.</p><p id="api-history-empty">No executed requests this session.</p><ol id="api-history-list"></ol><button type="button" class="copy-technical" data-copy-target="api-history-details" aria-label="Copy api history details">Copy JSON</button><pre id="api-history-details"></pre></section>
+    </section>
+    <section id="tools-workspace" hidden="" aria-label="Tools workspace">
+      <p class="eyebrow">PRODUCTIVITY</p><h1 tabindex="-1">Tools</h1>
+      <p class="help">Connector-backed workflows, never a local database. Select up to 100 loaded records per batch. Multi-record changes are not atomic; requests are sequential and paced at least 3.1 seconds apart. Other clients share the project rate limit.</p>
+      <fieldset id="tools-context-controls"><form id="tools-open-form" class="filter-row"><label>Exact collection name<input id="tools-collection" autocomplete="off" required=""></label><button type="submit">Load collection</button><button id="tools-use-data" type="button">Use current Data page / schema</button></form></fieldset>
+      <p id="tools-state" role="status" aria-live="polite"></p><p id="tools-error" role="alert"></p><p id="tools-local-error" role="alert"></p><p id="tools-notice" role="status"></p>
+      <div class="toolbar"><label class="include-field"><input id="tools-select-all" type="checkbox"> Select all loaded records</label><button id="tools-more" type="button">Load 20 more</button><button id="tools-reload" type="button">Reload collection</button></div>
+      <div class="table-scroll"><table id="tools-records"></table></div>
+      <p class="help">Selection includes only loaded records, not the whole collection. Pages are not a transaction snapshot. After writes, discard the plan and reload before exporting or loading another page.</p>
+      <nav class="tabs" role="tablist" aria-label="Productivity tools"><button id="tools-import-tab" role="tab" aria-controls="tools-import-panel" aria-selected="true">Import</button><button id="tools-export-tab" role="tab" aria-controls="tools-export-panel" aria-selected="false">Export</button><button id="tools-bulk-tab" role="tab" aria-controls="tools-bulk-panel" aria-selected="false">Bulk Actions</button><button id="tools-json-tab" role="tab" aria-controls="tools-json-panel" aria-selected="false">JSON</button><button id="tools-duplicate-tab" role="tab" aria-controls="tools-duplicate-panel" aria-selected="false">Duplicate</button><button id="tools-api-tab" role="tab" aria-controls="tools-api-panel" aria-selected="false">API request builder</button><button id="tools-media-tab" role="tab" aria-controls="tools-media-panel" aria-selected="false">Media/file tools</button></nav><p id="tools-schema-state" class="help"></p><p id="tools-csv-state" class="help"></p>
+      <fieldset id="tools-inputs">
+        <details><summary>Optional session schema for validation / CSV</summary><form id="tools-schema-form"><label>Schema JSON<textarea id="tools-schema-input" rows="4" spellcheck="false"></textarea></label><button type="submit">Use schema</button></form></details>
+        <section id="tools-import-panel" role="tabpanel" aria-labelledby="tools-import-tab"><h2>Import documents</h2><p>Creates new documents with server-assigned IDs. No upsert, replacement, collection creation or automatic import of record envelopes. All rows pass local validation before any writes; server validation still applies.</p><label>JSON / CSV file (UTF-8, at most 5 MiB)<input id="tools-import-file" type="file" accept=".json,.csv,application/json,text/csv"></label><label>Format<select id="tools-import-format"><option value="json">JSON document array</option><option value="csv">CSV with schema</option></select></label><label>Import content<textarea id="tools-import-text" rows="10" spellcheck="false" placeholder="[{&quot;title&quot;:&quot;Example&quot;}]"></textarea></label><button id="tools-prepare-import" type="button">Validate and preview import</button></section>
+        <section id="tools-bulk-panel" role="tabpanel" aria-labelledby="tools-bulk-tab" hidden=""><h2>Bulk edit / delete</h2><p>Updates apply the same explicit top-level replacement fields to every selected document. Nested values are replaced as a whole. No increments, field-removal syntax or bulk endpoint is invented.</p><label>Update fields (JSON object)<textarea id="tools-patch" rows="6" spellcheck="false">{}</textarea></label><button id="tools-prepare-update" type="button">Validate and preview updates</button><button id="tools-prepare-delete" type="button" class="danger-outline">Review selected deletions</button></section>
+        <section id="tools-json-panel" role="tabpanel" aria-labelledby="tools-json-tab" hidden=""><h2>Raw JSON editor</h2><button id="tools-load-json" type="button">Load current selected record</button><p id="tools-json-meta"></p><label>Editable document (no managed fields)<textarea id="tools-json-input" rows="14" spellcheck="false"></textarea></label><button id="tools-format-json" type="button">Validate and format</button><button id="tools-prepare-json" type="button">Validate and review diff</button><p class="help">Top-level field removal is not documented and is rejected. Save uses the reviewed expected version; conflicts never silently rebase the draft.</p></section>
+        <section id="tools-duplicate-panel" role="tabpanel" aria-labelledby="tools-duplicate-tab" hidden=""><h2>Duplicate selected documents</h2><p>Copy selected document data into the same collection, without managed IDs, versions or timestamps. File references stay references: object bytes are not duplicated.</p><button id="tools-prepare-duplicate" type="button">Preview duplicates</button></section>
+      </fieldset>
+      <section id="tools-export-panel" role="tabpanel" aria-labelledby="tools-export-tab" hidden=""><h2>Export documents</h2><p>Explicit local download of business data. IDs, versions and timestamps are excluded for re-import as NEW documents; this is not a complete database backup. Review files before sharing.</p><label>Scope<select id="tools-export-scope"><option value="selected">Selected loaded records</option><option value="loaded">All loaded records (not entire collection)</option></select></label><label>Format<select id="tools-export-format"><option value="json">JSON document array (lossless editable values)</option><option value="csv">CSV where meaningful</option></select></label><p class="help">CSV needs a scalar schema and consistently present, non-null fields. Spreadsheet formula-like text is prefixed with an apostrophe; JSON preserves exact text.</p><button id="tools-export-download" type="button">Download export</button><p id="tools-export-notice" role="status"></p></section>
+      <section id="tools-api-panel" role="tabpanel" aria-labelledby="tools-api-tab" hidden=""><h2>API request builder</h2><p>Reuse the OpenAPI-powered request builder: declared operations, typed parameters, request bodies, mutation acknowledgement, response inspection and redacted cURL / JavaScript examples. No duplicate network client.</p><button id="tools-open-api" type="button">Open API request builder</button></section>
+      <section id="tools-media-panel" role="tabpanel" aria-labelledby="tools-media-tab" hidden=""><h2>Media / file tools</h2><p>Inspect a local file without uploading or executing its contents. SHA-256 is informational and is not a remote ETag or version precondition.</p><label>Local file for size, type and SHA-256 (up to 20 MiB)<input id="tools-media-file" type="file"></label><pre id="tools-media-result"></pre><p>Use Files for connector-backed uploads, downloads, ranges, metadata, prefix navigation and confirmed deletion. Server-side copy, rename, presigned URLs and atomic object deletion preconditions are not invented.</p><button id="tools-open-files" type="button">Open file tools</button></section>
+      <section id="tools-plan" hidden=""><h2 id="tools-plan-title"></h2><div id="tools-progress" role="status" aria-live="polite"></div><h3>Review changes before execution</h3><div id="tools-diff"></div>
+        <p class="warning">Writes are independent, not a transaction. Cancel stops after the active request; completed writes cannot be rolled back here. Disconnecting clears results and retry keys, and cannot undo an in-flight write.</p>
+        <label>Type the exact target collection<input id="tools-confirm-collection" autocomplete="off"></label><label class="include-field"><input id="tools-confirm" type="checkbox"> I reviewed this plan and authorize these writes, including deletions when shown.</label>
+        <div class="toolbar"><button id="tools-run" class="primary" type="button">Execute reviewed plan</button><button id="tools-retry" type="button">Retry eligible failures only</button><button id="tools-stop" type="button">Stop after current request</button></div>
+        <p class="help">No automatic retries. Failed creates reuse the original idempotency key and body; updates/deletes reuse the original expected version. Conflicts and validation failures require a new reviewed plan. A 429 enforces a 60-second cooldown. After a long delay, verify creates in the backend before retrying (server idempotency retention is not guaranteed indefinitely).</p>
+        <ol id="tools-results"></ol><button id="tools-report-download" type="button">Download operation report</button>
+        <label class="include-field"><input id="tools-discard-ack" type="checkbox"> I checked uncertain outcomes and understand that discarding loses retry keys, drafts and results.</label><button id="tools-discard" type="button">Discard plan / results</button>
+      </section>
+    </section>
+    <section id="ai-workspace" hidden="" aria-label="AI assist workspace">
+      <header><h1 tabindex="-1">AI-assisted workflows</h1><p>Use AI to explain context and prepare structured drafts. Your connected backend remains the only data authority. AI never executes writes.</p></header>
+      <p id="ai-state" role="status" aria-live="polite"></p><p id="ai-error" role="alert"></p>
+      <div class="ai-grid">
+        <section><h2>1 · Choose context</h2>
+          <p class="help">Already-loaded context only; no background fetching. Select up to 20 records in Tools for record tasks. Data context supplies collection schema and filters, not editor drafts or page bodies.</p>
+          <label>Task<select id="ai-task"></select></label>
+          <label>Working context<select id="ai-source"><option value="tools">Tools collection and selected records</option><option value="data">Data collection (schema and filters)</option></select></label>
+          <label>Your instructions (up to 4 KiB)<textarea id="ai-instructions" rows="5" maxlength="4096" spellcheck="false" placeholder="Describe the change or question. Do not enter credentials."></textarea></label>
+          <fieldset id="ai-inclusions"><legend>Include in reviewed packet</legend>
+            <label class="include-field"><input id="ai-include-records" type="checkbox"> Selected record bodies (8 KiB each maximum)</label>
+            <label class="include-field"><input id="ai-include-files" type="checkbox"> Selected object metadata (never file bytes)</label>
+            <label class="include-field"><input id="ai-include-schemas" type="checkbox" checked=""> Loaded collection schema hints</label>
+            <label class="include-field"><input id="ai-include-operations" type="checkbox" checked=""> Loaded OpenAPI operations</label>
+            <label>Operation scope<select id="ai-operation-scope"><option value="all">All loaded operations</option><option value="selected">Only the operation selected in API</option></select></label>
+            <label class="include-field"><input id="ai-include-filters" type="checkbox" checked=""> Current Data / Files filters</label>
+            <label class="include-field"><input id="ai-include-errors" type="checkbox"> Current API error / failed response</label>
+          </fieldset>
+          <button id="ai-prepare" type="button">Prepare redacted packet</button><button id="ai-clear" type="button">Clear AI session</button>
+        </section>
+        <section><h2>2 · Review before sharing</h2>
+          <p class="warning">Redaction is a safeguard, not a guarantee for arbitrary business secrets. Check the exact packet for private data. Sharing sends data outside the connected backend; your chosen provider’s privacy policy applies. Uncheck optional context and recapture if needed.</p>
+          <label>Exact outgoing packet (64 KiB maximum)<textarea id="ai-packet" rows="16" readonly="" spellcheck="false"></textarea></label>
+          <label>Provider<select id="ai-provider"><option value="manual">Manual copy / paste — no configured provider</option></select></label>
+          <p class="help">No vendor, provider credentials, network adapter or extra backend is bundled. A trusted application adapter can register a provider. Manual mode works with your choice of external model.</p>
+          <label class="include-field"><input id="ai-share-ack" type="checkbox"> I reviewed this exact packet and intentionally allow sharing it with my chosen provider.</label>
+          <button id="ai-copy" type="button">Copy reviewed packet</button><button id="ai-generate" type="button">Send to selected provider</button><button id="ai-cancel" type="button">Cancel AI request</button>
+        </section>
+      </div>
+      <section><h2>3 · Validate and review proposal</h2>
+        <label>Paste the model’s JSON response (64 KiB maximum)<textarea id="ai-response" rows="7" spellcheck="false" maxlength="65536" placeholder="{&quot;kind&quot;:&quot;explanation&quot;,&quot;text&quot;:&quot;…&quot;}"></textarea></label>
+        <button id="ai-import-response" type="button">Validate response</button>
+        <pre id="ai-proposal" aria-live="polite"></pre>
+        <p class="help">At most 20 creates/selected edits. Transform and bulk drafts use explicit top-level replacement fields. Only known indexed equality filters and documented GET/HEAD API drafts are accepted. No deletion, executable scripts, tool calls, auth fields or model-controlled write targets/versions.</p>
+        <label class="include-field"><input id="ai-stage-ack" type="checkbox"> I reviewed this proposal and want to stage it in the normal workspace. This does not authorize execution.</label>
+        <button id="ai-stage" type="button">Hand off reviewed draft</button>
+        <p>Record drafts require Tools’ existing exact-collection confirmation before execution. Filters and API inputs remain drafts until you explicitly apply or execute them. Backend validation, authentication, connector permissions and optimistic concurrency remain in force.</p>
+      </section>
+    </section>
+  <section id="connections-workspace" hidden="" aria-labelledby="connections-title"><div class="page-heading"><div><p class="eyebrow">MANAGE</p><h1 id="connections-title" tabindex="-1">Connections</h1><p class="page-description">One workspace. Your backend’s rules.</p></div><button id="disconnect" class="danger-outline" type="button" disabled="">Disconnect session</button></div><div class="tabs" role="tablist" aria-label="Connection types"><button id="connections-telegraph-tab" type="button" role="tab" aria-controls="connections-telegraph-panel" aria-selected="true">Telegraph Cloud</button><button id="connections-other-tab" type="button" role="tab" aria-controls="connections-other-panel" aria-selected="false">Other Connections</button></div><section id="connections-telegraph-panel" role="tabpanel" aria-labelledby="connections-telegraph-tab"><div class="connection-intro"><span class="provider-mark">T</span><div><h2>Telegraph Cloud</h2><p>Document data, object storage, and a documented API.</p></div><span class="pill">Available connector</span></div><details id="connection-settings" open="">
+      <summary>Connection configuration <span id="connection-state">Not connected</span></summary>
+      <form id="connection-form" autocomplete="off">
+        <label>Telegraph URL<input id="connection-url" type="url" required="" placeholder="https://your-backend.example"></label>
+        <label>Project context<input id="connection-project" required="" placeholder="prj_your_project"></label>
+        <label>API key<input id="connection-key" type="password" autocomplete="off" required="" placeholder="Enter your API key"></label>
+        <button type="submit" class="primary">Connect</button>
+        <p class="help">Credential stays in memory for this session. The credential—not the project field—authorizes access. Direct access requires backend CORS permission.</p>
+        <p id="connection-error" role="alert"></p>
+      </form>
+    </details></section><section id="connections-other-panel" class="panel integration-empty" role="tabpanel" aria-labelledby="connections-other-tab" hidden=""><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7H6a5 5 0 0 0 0 10h3m6-10h3a5 5 0 0 1 0 10h-3M8 12h8"></path></svg><h2>Built for more connections</h2><p>Telegraph Cloud is the installed connector. Other backends need a trusted connector implementation; arbitrary endpoints cannot be connected here.</p><p class="help">No additional service or database is created by this workspace.</p><button type="button" data-route="connections/telegraph">Configure Telegraph Cloud</button></section><p class="help">Changing or disconnecting a connection clears drafts, operation results, retry keys, and request history. It cannot undo requests already accepted by the backend.</p><div class="connection-principles"><article><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Zm-4 9 3 3 5-6"></path></svg><h3>Session-scoped credentials</h3><p>Your key is held in memory, never in URLs or browser storage.</p></article><article><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v7c0 4 16 4 16 0V5M4 12v7c0 4 16 4 16 0v-7"></path></svg><h3>Your backend stays in control</h3><p>Permissions, validation, and record versions are enforced by your connected service.</p></article><article><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 6-6 6 6 6m8-12 6 6-6 6m-3-15-2 18"></path></svg><h3>Direct, documented access</h3><p>Requests use the connector. Your backend must allow this browser origin through CORS.</p></article></div></section><section id="settings-workspace" hidden="" aria-labelledby="settings-title"><div class="page-heading"><div><p class="eyebrow">PREFERENCES</p><h1 id="settings-title" tabindex="-1">Settings</h1><p class="page-description">Make the workspace comfortable for the way you work.</p></div></div><div class="settings-layout"><section class="panel"><div class="panel-heading"><div><h2>Workspace appearance</h2><p>Display preferences apply to this tab only. Reloading resets them.</p></div></div><div class="setting-row"><div><h3>Color theme</h3><p>Choose a light or dark surface, or follow your system.</p></div><label class="sr-only" for="setting-theme">Color theme</label><select id="setting-theme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">System</option></select></div><div class="setting-row"><div><h3>Table density</h3><p>Balance scan speed with more room to read.</p></div><label class="sr-only" for="setting-density">Table density</label><select id="setting-density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div><div class="setting-row"><div><h3>Wrap table values</h3><p>Long values wrap instead of staying on one line. Full JSON is always available.</p></div><label class="switch-label"><input id="setting-wrap" type="checkbox">Enable wrapping</label></div><p id="settings-feedback" role="status" class="help"></p></section><section class="panel shortcuts-help"><h2>Keyboard navigation</h2><dl class="keyboard-list"><div><dt>Go to a workspace</dt><dd><kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd></dd></div><div><dt>Move between tabs</dt><dd><kbd>←</kbd> <kbd>→</kbd></dd></div><div><dt>First / last tab</dt><dd><kbd>Home</kbd> <kbd>End</kbd></dd></div><div><dt>Close a dialog</dt><dd><kbd>Esc</kbd></dd></div><div><dt>Show shortcuts</dt><dd><kbd>?</kbd></dd></div></dl><p class="help">Escape cannot dismiss an in-flight destructive operation. Edits still require explicit Save or execution confirmation.</p></section></div><section class="panel settings-safety"><h2>Session &amp; privacy</h2><p>Connections, request history, AI context, and drafts are session-only. Disconnect clears connection-scoped state. It cannot undo an operation already accepted by the backend.</p><button type="button" data-route="connections">Manage your connection</button></section></section></main></div></div>
+  <dialog id="record-dialog" aria-labelledby="editor-title">
+    <form id="record-editor">
+      <div class="toolbar"><h2 id="editor-title"></h2><button id="close-editor" type="button">Close</button></div>
+      <p id="editor-meta" class="help"></p><p id="editor-status" role="status" aria-live="polite"></p>
+      <fieldset id="editor-fields">
+        <div id="editor-controls"><label>Editor<select id="editor-mode"><option value="json">JSON</option><option id="form-mode-option" value="form">Schema form</option></select></label><p id="editor-hint" class="help"></p></div>
+        <div id="editor-content"></div>
+      </fieldset>
+      <p id="editor-local-error" role="alert"></p><p id="editor-error" role="alert"></p>
+      <div id="conflict-panel" class="conflict" aria-live="polite"></div>
+      <button id="save-record" type="submit" class="primary">Save record</button>
+    </form>
+  </dialog>
+  <dialog id="object-delete-dialog" aria-labelledby="object-delete-title"><form id="delete-object-form">
+    <h2 id="object-delete-title">Delete object?</h2><p id="object-delete-target"></p><p id="object-delete-version" class="help"></p>
+    <p class="warning">This deletes the current object. The object API does not document atomic ETag/version preconditions for DELETE; the displayed version is informational and can change before deletion.</p>
+    <label class="include-field"><input id="delete-object-ack" type="checkbox" required=""> Delete this exact key. I understand the concurrency limitation.</label>
+    <p id="object-delete-error" role="alert"></p><div class="toolbar"><button id="cancel-object-delete" type="button">Cancel</button><button id="confirm-object-delete" type="submit" class="danger-outline">Confirm delete</button></div>
+  </form></dialog>
+  <script type="module" src="./app/index.js"></script>
 
-    <div class="toast-container position-fixed bottom-0 p-3"></div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-      crossorigin="anonymous"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-      crossorigin="anonymous"></script>
-    <script
-      src="https://code.jquery.com/jquery-3.7.1.min.js"
-      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-      crossorigin="anonymous"></script>
-
-    <script src="./app/index.js" defer type="module"></script>
-  </body>
-</html>
+<dialog id="command-dialog" class="command-dialog" aria-labelledby="command-title"><div class="command-heading"><h2 id="command-title">Go to workspace</h2><button id="command-close" type="button" class="icon-button" aria-label="Close quick navigation"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"></path></svg></button></div><label class="sr-only" for="command-search">Filter navigation destinations</label><div class="command-search-wrap"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg><input id="command-search" type="search" autocomplete="off" placeholder="Search pages and tools…" autofocus=""></div><p class="quiet-label">NAVIGATION</p><ul id="command-results" class="command-results"></ul><p id="command-empty" hidden="">No matching destinations. Try “data”, “JSON”, or “settings”.</p><footer><span><kbd>↑</kbd><kbd>↓</kbd> to move <kbd>Enter</kbd> to open</span><span><kbd>Esc</kbd> to close</span></footer></dialog><dialog id="shortcuts-dialog" class="shortcuts-dialog" aria-labelledby="shortcuts-title"><div class="toolbar"><h2 id="shortcuts-title">Keyboard shortcuts</h2><button id="shortcuts-close" type="button" aria-label="Close keyboard shortcuts">Close</button></div><dl class="keyboard-list"><div><dt>Go to a workspace</dt><dd><kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>K</kbd></dd></div><div><dt>Move between tabs</dt><dd><kbd>←</kbd> <kbd>→</kbd></dd></div><div><dt>First / last tab</dt><dd><kbd>Home</kbd> <kbd>End</kbd></dd></div><div><dt>Close a dialog</dt><dd><kbd>Esc</kbd></dd></div><div><dt>Show shortcuts</dt><dd><kbd>?</kbd></dd></div></dl><p>Text editors keep their normal keyboard behavior. Saving and destructive actions always require explicit confirmation.</p></dialog><p id="workspace-feedback" role="status" aria-live="polite" class="workspace-toast" hidden=""></p></body></html>

@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { JSDOM } from 'jsdom';
+import { setActiveConnection } from '../../dashboard-ui/app/connection/active.js';
+const tick = () => new Promise(resolve => setTimeout(resolve, 0));
+test('real app hands a Data page to Tools and performs a confirmed versioned JSON update through the connector', async t => {
+  const dom = new JSDOM(await readFile(new URL('../../dashboard-ui/index.html', import.meta.url), 'utf8'), { url: 'https://admin.example' });
+  const previous = { window: globalThis.window, document: globalThis.document, fetch: globalThis.fetch }, calls = [];
+  const record = { id: 'one', version: 6, data: { title: 'Before' } };
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document, fetch: async (url, options) => {
+    calls.push({ url, ...options }); const path = new URL(url).pathname;
+    return new Response(JSON.stringify(options.method === 'PATCH' ? { ...record, version: 7, data: { title: 'After' } } : path.endsWith('/one') ? record : { data: [record], has_more: false }), { headers: { 'Content-Type': 'application/json' } });
+  } });
+  t.after(() => { setActiveConnection(null); Object.assign(globalThis, previous); dom.window.close(); });
+  await import('../../dashboard-ui/app/index.js');
+  const $ = id => dom.window.document.getElementById(id);
+  const event = (id, kind) => $(id).dispatchEvent(new dom.window.Event(kind, { bubbles: true, cancelable: true }));
+  $('connection-key').value = 'synthetic-tools-entry-key'; event('connection-form', 'submit'); await tick(); assert.equal(calls.length, 0);
+  $('collection-input').value = 'notes'; event('open-collection-form', 'submit'); await tick(); assert.equal(calls.length, 1);
+  $('data-tools').click(); await tick(); assert.equal($('tools-workspace').hidden, false); assert.equal($('data-workspace').hidden, true); assert.equal(calls.length, 1);
+  const checkbox = $('tools-records').querySelector('input'); checkbox.checked = true; checkbox.dispatchEvent(new dom.window.Event('change'));
+  $('tools-json-tab').click(); $('tools-load-json').click(); await tick(); assert.equal(calls.length, 2);
+  $('tools-json-input').value = '{"title":"After"}'; event('tools-json-input', 'input'); $('tools-prepare-json').click(); await tick();
+  assert.match($('tools-diff').textContent, /Before/); assert.match($('tools-diff').textContent, /After/);
+  $('tools-confirm-collection').value = 'notes'; $('tools-confirm').checked = true; $('tools-run').click(); await tick();
+  const write = calls.find(call => call.method === 'PATCH'); assert.deepEqual(JSON.parse(write.body), { title: 'After', _expected_version: 6 });
+  assert.equal(write.headers.get('authorization'), 'Bearer synthetic-tools-entry-key'); assert.equal(new URL(write.url).pathname, '/api/db/notes/one');
+  $('tools-open-files').click(); assert.equal($('files-workspace').hidden, false);
+  $('disconnect').click(); assert.equal($('tools-json-input').value, ''); assert.equal($('tools-plan').hidden, true);
+});
