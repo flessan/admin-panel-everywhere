@@ -30,6 +30,23 @@ export function mountDataView(document, controller) {
   };
   $('refresh-records').onclick = () => controller.refresh();
   $('create-record').onclick = () => { focusBeforeEditorLabel = null; focusBeforeEditor = $('create-record'); controller.openEditor('create'); };
+$('publish-json').onclick = () => {
+    if (!state?.collection) return;
+    renderPublicJsonDialog(state);
+    const dialog = $('public-json-dialog');
+    if (!dialog.open) (dialog.showModal ? dialog.showModal() : dialog.setAttribute('open', ''));
+  };
+  $('public-json-close').onclick = () => $('public-json-dialog').close?.();
+  $('public-json-dialog').addEventListener('cancel', () => {});
+  $('public-json-publish').onclick = async () => {
+    try { await controller.publishShare(); } catch { /* state renders the connector error */ }
+  };
+  $('public-json-regenerate').onclick = async () => {
+    try { await controller.publishShare({ regenerate: true }); } catch { /* state renders the connector error */ }
+  };
+  $('public-json-revoke').onclick = async () => {
+    try { await controller.revokeShare(); } catch { /* state renders the connector error */ }
+  };
   $('previous-page').onclick = () => controller.page('previous');
   $('next-page').onclick = () => controller.page('next');
   let aiFilters = null;
@@ -97,6 +114,7 @@ export function mountDataView(document, controller) {
   function renderRecords(s) {
     const busy = Boolean(s.editor), loaded = ['ready', 'empty'].includes(s.records.status);
     $('collection-title').textContent = s.collection ?? 'Choose a collection';
+    renderPublicJsonDialog(s);
     $('records-state').textContent = ({ idle: 'Open a collection to browse its records.', loading: 'Loading records…', empty: 'No records match this page and filter.', error: s.records.error, ready: `${s.records.items.length} records on this page · ordered by ID` })[s.records.status];
     $('records-state').setAttribute('role', s.records.status === 'error' ? 'alert' : 'status');
     $('record-table').setAttribute('aria-busy', String(s.records.status === 'loading'));
@@ -138,6 +156,37 @@ export function mountDataView(document, controller) {
     $('active-filters').textContent = Object.keys(s.records.filters).length ? `Applied: ${JSON.stringify(s.records.filters)}` : 'No filters applied.';
     $('notice').textContent = s.notice;
   }
+  function renderPublicJsonDialog(s) {
+    const share = s.share || {};
+    const dialog = $('public-json-dialog');
+    const supported = typeof controller.publishShare === 'function' && ['ready', 'loading', 'publishing', 'error', 'unavailable'].includes(share.status);
+    const working = share.status === 'loading' || share.status === 'publishing';
+    const published = Boolean(share.published && share.url);
+    $('public-json-title').textContent = s.collection ? `Publish JSON · ${s.collection}` : 'Publish JSON';
+    $('public-json-description').textContent = published
+      ? 'This collection is published as a public, read-only JSON feed. Anyone with the link can read it; no API key is required.'
+      : 'Publish this collection as a public, read-only JSON feed. The link is separate from your developer API key.';
+    $('public-json-status').textContent = share.status === 'loading' ? 'Checking current publish status…'
+      : share.status === 'publishing' ? (published ? 'Updating public link…' : 'Publishing…')
+      : share.status === 'error' ? share.error || 'The publish status could not be loaded.'
+      : share.status === 'unavailable' ? 'This connector does not expose public JSON publishing.'
+      : published ? 'Published and publicly readable.' : 'Not currently published.';
+    $('public-json-error').hidden = !(share.error && share.status !== 'error');
+    $('public-json-error').textContent = share.error || '';
+    $('public-json-published').hidden = !published;
+    $('public-json-url').value = published ? share.url : '';
+    $('public-json-raw-url').value = published ? share.rawUrl : '';
+    $('public-json-copy').disabled = !published || working;
+    $('public-json-copy-raw').disabled = !published || working;
+    $('public-json-publish').hidden = published;
+    $('public-json-regenerate').hidden = !published;
+    $('public-json-revoke').hidden = !published;
+    for (const id of ['public-json-publish', 'public-json-regenerate', 'public-json-revoke']) $(id).disabled = !supported || working;
+    $('public-json-close').disabled = working;
+    $('publish-json').disabled = !s.connected || !s.collection || !['ready', 'empty'].includes(s.records.status) || share.status === 'unavailable';
+    $('publish-json-status').textContent = published ? 'Public' : share.status === 'error' ? 'Unavailable' : share.status === 'loading' ? 'Checking…' : '';
+  }
+
   function renderSchema(s) {
     $('schema-state').textContent = s.schema.status === 'loading' ? 'Loading schema…' : s.schema.status === 'error' ? s.schema.error :
       s.schema.schema == null ? 'No authoritative schema metadata available. JSON records remain usable; server validation is authoritative.' : `Schema source: ${s.schema.source}. Session/configured descriptors are hints, not backend schema changes.`;
