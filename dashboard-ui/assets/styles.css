@@ -178,6 +178,45 @@ html { scroll-padding-top:85px; }
 .record-id .record-link:hover { text-decoration:underline; }
 @media(max-width:720px) { #record-table .row-actions,#record-table thead th:last-child { position:static; box-shadow:none; }.record-id .record-link { min-height:32px; } }
 
+/* Spreadsheet data editor */
+.sheet-toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:7px; padding:10px 11px; margin:14px 0 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface-soft); }
+.sheet-toolbar-main { display:flex; align-items:center; gap:9px; margin-right:auto; min-width:150px; }
+.sheet-toolbar-main strong { font-size:11px; font-weight:650; }
+.sheet-state { color:var(--muted); font-size:10px; }
+.sheet-state.is-dirty { color:var(--warning); }
+.sheet-state.is-error { color:var(--danger); }
+.sheet-column-control { margin:0; width:145px; }
+.sheet-column-control input { width:100%; min-height:31px; font-size:11px; padding:6px 8px; }
+.sheet-toolbar button { min-height:31px; font-size:10px; padding:5px 9px; }
+.sheet-scroll { border-radius:8px; }
+.sheet-scroll table { min-width:680px; table-layout:fixed; }
+.sheet-scroll th,.sheet-scroll td { padding:0; max-width:none; white-space:nowrap; overflow:visible; text-overflow:clip; }
+.sheet-scroll th { padding:8px 9px; }
+.sheet-scroll .sheet-row-number { width:42px; min-width:42px; max-width:42px; text-align:center; color:var(--subtle); background:var(--surface-soft); font-size:9px; font-variant-numeric:tabular-nums; position:sticky; left:0; z-index:4; border-right:1px solid var(--line); }
+.sheet-scroll .sheet-field-header { min-width:140px; width:160px; border-right:1px solid var(--line); }
+.sheet-field-header[data-required=true]::after { content:" *"; color:var(--danger); }
+.sheet-scroll .sheet-cell-input { width:100%; min-width:140px; min-height:39px; padding:8px 10px; border:0; border-radius:0; background:transparent; box-shadow:none; font-size:11px; }
+.sheet-scroll select.sheet-cell-input { padding-right:24px; }
+.sheet-scroll .sheet-cell-input:hover { background:var(--surface-soft); }
+.sheet-scroll .sheet-cell-input:focus { outline:2px solid var(--accent); outline-offset:-2px; background:var(--surface); box-shadow:none; }
+.sheet-scroll .sheet-check-cell { width:100%; height:39px; display:grid; place-items:center; margin:0; }
+.sheet-scroll .sheet-check-cell input { margin:0; }
+.sheet-scroll .sheet-actions-header,.sheet-scroll .sheet-actions-cell { width:104px; min-width:104px; text-align:center; background:var(--surface); position:sticky; right:0; z-index:3; border-left:1px solid var(--line); }
+.sheet-scroll .sheet-actions-cell { height:39px; }
+.sheet-scroll .sheet-row-action { min-height:27px; padding:4px 7px; margin:0 2px; border:0; background:transparent; font:10px/1.3 ui-monospace,monospace; color:var(--muted); }
+.sheet-scroll .sheet-row-action:hover:not(:disabled) { background:var(--surface-soft); color:var(--accent); border:0; }
+.sheet-scroll .sheet-row-action.danger-outline { color:var(--danger); }
+.sheet-scroll tr.is-saving { opacity:.58; }
+.sheet-scroll tr.is-deleted { opacity:.5; text-decoration:line-through; }
+.sheet-scroll tr.has-error td { background:var(--danger-soft); }
+.sheet-scroll tr:hover .sheet-actions-cell,.sheet-scroll tr:focus-within .sheet-actions-cell { background:var(--surface-soft); }
+.sheet-empty { padding:38px 20px!important; text-align:center; color:var(--muted); font-size:11px; background:var(--surface-soft)!important; }
+@media(max-width:720px) {
+  .sheet-toolbar-main { width:100%; margin-right:0; }
+  .sheet-column-control { flex:1 1 130px; width:auto; }
+  .sheet-scroll table { min-width:610px; }
+}
+
 body.navigation-open { overflow:hidden; }
 
 input:not([type=checkbox]),select { font-weight:400; }
